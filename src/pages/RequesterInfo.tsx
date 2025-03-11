@@ -1,0 +1,2951 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const RequesterInfo: React.FC = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    department: '',
+    requestType: '',
+    description: '',
+    region: '',
+    adminDepartment: '',
+    arrondissement: '',
+    village: ''
+  });
+
+  type Location = {
+    id: string;
+    name: string;
+  };
+  
+  type Region = Location & {
+    departments: Department[];
+  };
+  
+  type Department = Location & {
+    arrondissements: Arrondissement[];
+  };
+  
+  type Arrondissement = Location & {
+    villages: Village[];
+  };
+  
+  type Village = Location;
+
+  // Location state
+  const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+  const [selectedArrondissement, setSelectedArrondissement] = useState<Arrondissement | null>(null);
+
+  const [searchRegion, setSearchRegion] = useState('');
+  const [searchDepartment, setSearchDepartment] = useState('');
+  const [searchArrondissement, setSearchArrondissement] = useState('');
+  const [searchVillage, setSearchVillage] = useState('');
+
+  // Available options based on selections
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [arrondissements, setArrondissements] = useState<Arrondissement[]>([]);
+  const [villages, setVillages] = useState<Village[]>([]);
+
+  useEffect(() => {
+    if (formData.region) {
+      const region = locationData.find(r => r.id === formData.region);
+      setSelectedRegion(region || null);
+      setDepartments(region?.departments || []);
+      setFormData(prev => ({
+        ...prev,
+        adminDepartment: '',
+        arrondissement: '',
+        village: ''
+      }));
+    }
+  }, [formData.region]);
+
+  useEffect(() => {
+    if (formData.adminDepartment && selectedRegion) {
+      const department = selectedRegion.departments.find(d => d.id === formData.adminDepartment);
+      setSelectedDepartment(department || null);
+      setArrondissements(department?.arrondissements || []);
+      setFormData(prev => ({
+        ...prev,
+        arrondissement: '',
+        village: ''
+      }));
+    }
+  }, [formData.adminDepartment, selectedRegion]);
+
+  useEffect(() => {
+    if (formData.arrondissement && selectedDepartment) {
+      const arrondissement = selectedDepartment.arrondissements.find(a => a.id === formData.arrondissement);
+      setSelectedArrondissement(arrondissement || null);
+      setVillages(arrondissement?.villages || []);
+      setFormData(prev => ({
+        ...prev,
+        village: ''
+      }));
+    }
+  }, [formData.arrondissement, selectedDepartment]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const locationData: Region[] = [
+    {
+      id: '01',
+      name: 'Adamaoua',
+      departments: [
+        {
+          id: 'AD-01',
+          name: 'Djérem',
+          arrondissements: [
+            {
+              id: 'AD-01-01',
+              name: 'Tibati',
+              villages: [
+                { id: 'AD-01-01-01', name: 'Tibati' },
+                { id: 'AD-01-01-02', name: 'Meidjamba' }
+              ]
+            },
+            {
+              id: 'AD-01-02',
+              name: 'Ngaoundal',
+              villages: [
+                { id: 'AD-01-02-01', name: 'Ngaoundal' },
+                { id: 'AD-01-02-02', name: 'Beka Gotto' }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'AD-02',
+          name: 'Faro-et-Déo',
+          arrondissements: [
+            {
+              id: 'AD-02-01',
+              name: 'Tignère',
+              villages: [
+                { id: 'AD-02-01-01', name: 'Tignère' },
+                { id: 'AD-02-01-02', name: 'Kontcha' }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: '02',
+      name: 'Centre',
+      departments: [
+        {
+          id: 'CE-01',
+          name: 'LA HAUTE-SANAGA',
+          arrondissements: [
+            {
+              id: "CE-01-01",
+              name: "Bibey",
+              villages:[
+                { id: "CE010105", name: "Bibéa" },
+                { id: "CE010101", name: "Bibey" },
+                { id: "CE010102", name: "Bibey Ville" },
+                { id: "CE010106", name: "Bibey Village" },
+                { id: "CE010103", name: "Bibey Urbain" },
+                { id: "CE010104", name: "Bibey Rural" },
+                { id: "CE010107", name: "Mbélé" },
+                { id: "CE010108", name: "Mimbanga" },
+                { id: "CE010113", name: "Mekon III" },
+                { id: "CE010109", name: "Mpandang" },
+                { id: "CE010110", name: "Nguinouma" },
+                { id: "CE010114", name: "Metep" },
+                { id: "CE010111", name: "Metep" },
+                { id: "CE010115", name: "Ndoumba" },
+                { id: "CE010112", name: "Landi" },
+                { id: "CE010116", name: "Tobe" }
+              ]
+
+            },
+            {
+              id: "CE-01-02",
+              name: "Lembe Yezoum",
+              villages: [
+                    { id: "CE010201", name: "Akomo" },
+                    { id: "CE010222", name: "Bana" },
+                    { id: "CE010207", name: "Biwong" },
+                    { id: "CE010208", name: "Ekang" },
+                    { id: "CE010223", name: "Ebolboumou" },
+                    { id: "CE010209", name: "Endang" },
+                    { id: "CE010210", name: "Endoum" },
+                    { id: "CE010214", name: "Melo" },
+                    { id: "CE010213", name: "Mebang" },
+                    { id: "CE010215", name: "Mevong" },
+                    { id: "CE010212", name: "Lembe II" },
+                    { id: "CE010205", name: "Lembe III" },
+                    { id: "CE010211", name: "Lembe III" },
+                    { id: "CE010204", name: "Lembe II" },
+                    { id: "CE010203", name: "Lembe I" },
+                    { id: "CE010201", name: "Lembe Yezoum" },
+                    { id: "CE010202", name: "Lembe Yezoum Ville" },
+                    { id: "CE010206", name: "Lembe Yezoum Rural" },
+                    { id: "CE010224", name: "Lembe IV" },
+                    { id: "CE010225", name: "Lembe V" },
+                    { id: "CE010226", name: "Lembe VI" },
+                    { id: "CE010227", name: "Lembe VII" },
+                    { id: "CE010216", name: "Nguinda I" },
+                    { id: "CE010217", name: "Nguinda II" },
+                    { id: "CE010218", name: "Nkobiba" },
+                    { id: "CE010219", name: "Nlong" },
+                    { id: "CE010220", name: "Simbane" }
+                  ]
+            },
+            {
+              id: "CE-01-03",
+              name: "Mbandjock",
+              villages: [
+                { id: "CE010301", name: "Biboto" },
+                { id: "CE010302", name: "Mbandjock" },
+                { id: "CE010303", name: "Mbandjock Ville" },
+                { id: "CE010304", name: "Ndjore" },
+                { id: "CE010305", name: "Ndjore" },
+                { id: "CE010306", name: "Ndokoa" },
+                { id: "CE010307", name: "Nio-Baouté" },
+                { id: "CE010308", name: "Minkouma" },
+                { id: "CE010309", name: "Mekomba" },
+                { id: "CE010310", name: "Mekomba" },
+                { id: "CE010311", name: "Ndo" },
+                { id: "CE010312", name: "Ndo" }
+              ]
+            },
+            {
+              id: "CE-01-04",
+              name: "Minta",
+              villages: [
+                { id: "CE010402", name: "Akom" },
+                { id: "CE010403", name: "Akoum" },
+                { id: "CE010401", name: "Afanoveng" },
+                { id: "CE010404", name: "Bikole" },
+                { id: "CE010405", name: "Bucrep, 3ème RGPH" },
+                { id: "CE010413", name: "Mebang" },
+                { id: "CE010411", name: "Meba" },
+                { id: "CE010412", name: "Mekon" },
+                { id: "CE010414", name: "Mengue" },
+                { id: "CE010415", name: "Minta" },
+                { id: "CE010416", name: "Minta Ville" },
+                { id: "CE010417", name: "Minta Urbain" },
+                { id: "CE010421", name: "Minta Rural" },
+                { id: "CE010418", name: "Mbargue" },
+                { id: "CE010419", name: "Mbargue" },
+                { id: "CE010420", name: "Mbinang" },
+                { id: "CE010416", name: "Minta Ville" },
+                { id: "CE010406", name: "Eflouan" },
+                { id: "CE010407", name: "Elot" },
+                { id: "CE010409", name: "Enong Bibak" },
+                { id: "CE010410", name: "Etol" },
+                { id: "CE010419", name: "Minta" },
+                { id: "CE010425", name: "Ngamba" },
+                { id: "CE010424", name: "Ngo'o" },
+                { id: "CE010423", name: "Ngok-Etele" },
+                { id: "CE010426", name: "Nlang" },
+                { id: "CE010427", name: "Nio" },
+                { id: "CE010428", name: "Sandja" },
+                { id: "CE010429", name: "Tikare" },
+                { id: "CE010430", name: "Vela" },
+                { id: "CE010431", name: "Wall" },
+                { id: "CE010432", name: "Wall" }
+              ]
+            },
+            {
+              id: "CE-01-05",
+              name: "Nanga-Eboko",
+              villages: [
+                { id: "CE010501", name: "Abam" },
+                { id: "CE010502", name: "Akak" },
+                { id: "CE010503", name: "Bissaga" },
+                { id: "CE010504", name: "Bifoulé" },
+                { id: "CE010505", name: "Biboa" },
+                { id: "CE010506", name: "Biboa" },
+                { id: "CE010507", name: "Bikang" },
+                { id: "CE010508", name: "Bitam" },
+                { id: "CE010509", name: "Bogba" },
+                { id: "CE010510", name: "Boundjou" },
+                { id: "CE010511", name: "Dèa" },
+                { id: "CE010512", name: "Dèa" },
+                { id: "CE010513", name: "Dingbekoua" },
+                { id: "CE010514", name: "Ebolué" },
+                { id: "CE010515", name: "Efoulane II" },
+                { id: "CE010516", name: "Ekanga" },
+                { id: "CE010517", name: "Ekanga II" },
+                { id: "CE010518", name: "Ekondong" },
+                { id: "CE010519", name: "Ekok" },
+                { id: "CE010520", name: "Emtsé" },
+                { id: "CE010521", name: "Emtsé" },
+                { id: "CE010522", name: "Essamesso" },
+                { id: "CE010523", name: "Essimeyong" },
+                { id: "CE010524", name: "Etog-Nang" },
+                { id: "CE010525", name: "Etol" },
+                { id: "CE010526", name: "Kaga" },
+                { id: "CE010527", name: "Ka’a" },
+                { id: "CE010528", name: "Kom" },
+                { id: "CE010529", name: "Longo" },
+                { id: "CE010530", name: "Meko" },
+                { id: "CE010531", name: "Menga’a" },
+                { id: "CE010532", name: "Mendongé" },
+                { id: "CE010533", name: "Mendjoué" },
+                { id: "CE010534", name: "Mengué" },
+                { id: "CE010535", name: "Mimbang" },
+                { id: "CE010536", name: "Mimbele" },
+                { id: "CE010537", name: "Mingangué" },
+                { id: "CE010538", name: "Minta" },
+                { id: "CE010539", name: "Moko" },
+                { id: "CE010540", name: "Mokolo-Bamvelé" },
+                { id: "CE010541", name: "Nanga-Eboko Ville" },
+                { id: "CE010542", name: "Nkot-Nam" },
+                { id: "CE010543", name: "Nkolndong" },
+                { id: "CE010544", name: "Nkolmveng" },
+                { id: "CE010545", name: "Ndomé" },
+                { id: "CE010546", name: "Nya Yessé" },
+                { id: "CE010547", name: "Ouassa-Bamvelé" },
+                { id: "CE010548", name: "Sassé" },
+                { id: "CE010549", name: "Zengoaga" }
+              ]
+            },
+            {
+              id: "CE-01-06",
+              name: "Nkoteng",
+              villages: [
+                { id: "CE010601", name: "Avangane" },
+                { id: "CE010602", name: "Bakassi/Mendibi" },
+                { id: "CE010603", name: "Ebometende" },
+                { id: "CE010604", name: "Megangne" },
+                { id: "CE010605", name: "Messeng" },
+                { id: "CE010606", name: "Mvan" },
+                { id: "CE010607", name: "Nkoteng" },
+                { id: "CE010608", name: "Nkoteng Ville" },
+                { id: "CE010609", name: "Nkoteng Village" },
+                { id: "CE010610", name: "Nkoteng Rural" },
+                { id: "CE010611", name: "Ndoumba" },
+                { id: "CE010612", name: "Nyombo" },
+                { id: "CE010613", name: "Ouassa-Babouté" },
+                { id: "CE010614", name: "Zilli" }
+              ]
+            },
+            {
+              id: "CE-01-07",
+              name: "Nsem",
+              villages: [
+                { id: "CE010701", name: "Ambane" },
+                { id: "CE010702", name: "Asseck" },
+                { id: "CE010703", name: "Epeda I" },
+                { id: "CE010704", name: "Epeda II" },
+                { id: "CE010705", name: "Essong" },
+                { id: "CE010706", name: "Mandjouck" },
+                { id: "CE010707", name: "Mbong" },
+                { id: "CE010708", name: "Meyene" },
+                { id: "CE010709", name: "Mekone I" },
+                { id: "CE010710", name: "Nsem" },
+                { id: "CE010711", name: "Nsem Ville" },
+                { id: "CE010712", name: "Nsem I" },
+                { id: "CE010713", name: "Nsem II" },
+                { id: "CE010714", name: "Nsem Rural" },
+                { id: "CE010715", name: "Nyeng" },
+                { id: "CE010716", name: "So'o Ndene" }
+              ]
+            },
+          ]
+        },
+        {
+          id: 'CE-02',
+          name: ' LA LEKIE',
+          arrondissements: [
+            {
+              id: "CE-02-01",
+              name: "Batschenga",
+              villages: [
+                { id: "CE020101", name: "Ballong 1" },
+                { id: "CE020102", name: "Ballong 2" },
+                { id: "CE020103", name: "Batschenga" },
+                { id: "CE020104", name: "Batschenga Ville" },
+                { id: "CE020105", name: "Benyada-Sud" },
+                { id: "CE020106", name: "Biyaga" },
+                { id: "CE020107", name: "Ebang-Minala" },
+                { id: "CE020108", name: "Elon" },
+                { id: "CE020109", name: "Emana-Batschenga" },
+                { id: "CE020110", name: "Emana-Benyada" },
+                { id: "CE020111", name: "Faménassi" },
+                { id: "CE020112", name: "Groupe Batschenga" },
+                { id: "CE020113", name: "Mebassa" },
+                { id: "CE020114", name: "Nalassi" },
+                { id: "CE020115", name: "Natchigal" },
+                { id: "CE020116", name: "Nkolkpali" },
+                { id: "CE020117", name: "Nkolmekok" },
+                { id: "CE020118", name: "Olembé" },
+                { id: "CE020119", name: "Otibili" }
+              ]
+            },
+            {
+              id: "CE-02-01",
+              name: "Batschenga",
+              villages: [
+                { id: "CE020101", name: "Ballong 1" },
+                { id: "CE020102", name: "Ballong 2" },
+                { id: "CE020103", name: "Batschenga" },
+                { id: "CE020104", name: "Batschenga Ville" },
+                { id: "CE020105", name: "Benyada-Sud" },
+                { id: "CE020106", name: "Biyaga" },
+                { id: "CE020107", name: "Ebang-Minala" },
+                { id: "CE020108", name: "Elon" },
+                { id: "CE020109", name: "Emana-Batschenga" },
+                { id: "CE020110", name: "Emana-Benyada" },
+                { id: "CE020111", name: "Faménassi" },
+                { id: "CE020112", name: "Groupe Batschenga" },
+                { id: "CE020113", name: "Mebassa" },
+                { id: "CE020114", name: "Nalassi" },
+                { id: "CE020115", name: "Natchigal" },
+                { id: "CE020116", name: "Nkolkpali" },
+                { id: "CE020117", name: "Nkolmekok" },
+                { id: "CE020118", name: "Olembé" },
+                { id: "CE020119", name: "Otibili" }
+              ]
+            },
+            {
+              id: "CE-02-02",
+              name: "Ebebda",
+              villages: [
+                { id: "CE020201", name: "Abam" },
+                { id: "CE020202", name: "Abam-Ngoé" },
+                { id: "CE020203", name: "Abang-Nang" },
+                { id: "CE020204", name: "Ebebda" },
+                { id: "CE020205", name: "Ebebda Ville" },
+                { id: "CE020206", name: "Ebebda I" },
+                { id: "CE020207", name: "Ebebda II" },
+                { id: "CE020208", name: "Ebong" },
+                { id: "CE020209", name: "Ekome" },
+                { id: "CE020210", name: "Endoum" },
+                { id: "CE020211", name: "Koan" },
+                { id: "CE020212", name: "Koan" },
+                { id: "CE020213", name: "Lendong" },
+                { id: "CE020214", name: "Melen" },
+                { id: "CE020215", name: "Nega" },
+                { id: "CE020216", name: "Nega" },
+                { id: "CE020217", name: "Nkom I" },
+                { id: "CE020218", name: "Nkom II" },
+                { id: "CE020219", name: "Ngoksa" },
+                { id: "CE020220", name: "Pozo I" },
+                { id: "CE020221", name: "Pozo II" },
+                { id: "CE020222", name: "Sa'a Rural" },
+                { id: "CE020223", name: "Zokogo" }
+              ]
+            },
+            {
+              id: "CE-02-03",
+              name: "Élig-Mfomo",
+              villages: [
+                { id: "CE020301", name: "Akak" },
+                { id: "CE020302", name: "Bikogo" },
+                { id: "CE020303", name: "Bodo" },
+                { id: "CE020304", name: "Élig Onana" },
+                { id: "CE020305", name: "Élig-Mfomo" },
+                { id: "CE020306", name: "Élig-Mfomo Ville" },
+                { id: "CE020307", name: "Élig-Mfomo Centre" },
+                { id: "CE020308", name: "Elot Kos" },
+                { id: "CE020309", name: "Endama I" },
+                { id: "CE020310", name: "Endama II" },
+                { id: "CE020311", name: "Enobita" },
+                { id: "CE020312", name: "Kokodo I" },
+                { id: "CE020313", name: "Kokodo II" },
+                { id: "CE020314", name: "Kombo-Essele" },
+                { id: "CE020315", name: "Lékié" },
+                { id: "CE020316", name: "Lekoukous" },
+                { id: "CE020317", name: "Mbane Douma I" },
+                { id: "CE020318", name: "Mbane Douma II" },
+                { id: "CE020319", name: "Mebomo" },
+                { id: "CE020320", name: "Niga" },
+                { id: "CE020321", name: "Nkengue" },
+                { id: "CE020322", name: "Nkol Bikok" },
+                { id: "CE020323", name: "Nkol MBA" },
+                { id: "CE020324", name: "Nkol Obang I" },
+                { id: "CE020325", name: "Nkol Obang II" },
+                { id: "CE020326", name: "Nkol Ossan" },
+                { id: "CE020327", name: "Okok-Essele" }
+              ]
+            },
+            {
+              id: "CE-02-04",
+              name: "Evodoula",
+              villages: [
+                { id: "CE020401", name: "Accueuil" },
+                { id: "CE020402", name: "Ayissi" },
+                { id: "CE020403", name: "Doumassi" },
+                { id: "CE020404", name: "Haoussa" },
+                { id: "CE020405", name: "Mission Catholique" },
+                { id: "CE020406", name: "Mvog Onamenye 2" },
+                { id: "CE020407", name: "Etok" },
+                { id: "CE020408", name: "Ekol" },
+                { id: "CE020409", name: "Evodoula" },
+                { id: "CE020410", name: "Evodoula Ville" },
+                { id: "CE020411", name: "Evodaula-Village" },
+                { id: "CE020412", name: "Mbel-Bikol" },
+                { id: "CE020413", name: "Minwoho-Centre" },
+                { id: "CE020414", name: "Minwoho-Sud" },
+                { id: "CE020415", name: "Nkod Abel" },
+                { id: "CE020416", name: "Nkol Abang" },
+                { id: "CE020417", name: "Nkolakok" },
+                { id: "CE020418", name: "Nkolkougda 1" },
+                { id: "CE020419", name: "Nkolkougda 2" },
+                { id: "CE020420", name: "Nkol Ohandja" },
+                { id: "CE020421", name: "Nkol Seng I" },
+                { id: "CE020422", name: "Nkol Seng II" },
+                { id: "CE020423", name: "Nlong Menang" },
+                { id: "CE020424", name: "Pobo" },
+                { id: "CE020425", name: "Ntsas-Endo" },
+                { id: "CE020426", name: "Elah" },
+                { id: "CE020427", name: "Elig Zogo" },
+                { id: "CE020428", name: "Enoh" },
+                { id: "CE020429", name: "Eyen-Meyong" },
+                { id: "CE020430", name: "Kalngaha" },
+                { id: "CE020431", name: "Komo" },
+                { id: "CE020432", name: "Meyos" },
+                { id: "CE020433", name: "Ngbabang 1" },
+                { id: "CE020434", name: "Ngbabang 2" },
+                { id: "CE020435", name: "Ngbabang 3" },
+                { id: "CE020436", name: "Ngobo" },
+                { id: "CE020437", name: "Nguesse" },
+                { id: "CE020438", name: "Nkol Assa 1" },
+                { id: "CE020439", name: "Nkol Assa 2" },
+                { id: "CE020440", name: "Nkol Meyos 1" },
+                { id: "CE020441", name: "Nkol Meyos 2" },
+                { id: "CE020442", name: "Nkol Nguelé" },
+                { id: "CE020443", name: "Nloudou" },
+                { id: "CE020444", name: "Ntouda Centre" },
+                { id: "CE020445", name: "Ntouda Sud" },
+                { id: "CE020446", name: "Okok 1" },
+                { id: "CE020447", name: "Okok 2" },
+                { id: "CE020448", name: "Pongsolo" }
+              ]
+            },
+            {
+              id: "CE-02-05",
+              name: "Lobo",
+              villages: [
+                { id: "CE020501", name: "Adjap" },
+                { id: "CE020502", name: "Akok" },
+                { id: "CE020503", name: "Ekekam 3" },
+                { id: "CE020504", name: "Ekoumtik" },
+                { id: "CE020505", name: "Eyang" },
+                { id: "CE020506", name: "Kelle" },
+                { id: "CE020507", name: "Koudi" },
+                { id: "CE020508", name: "Menguek 1" },
+                { id: "CE020509", name: "Menguek 2" },
+                { id: "CE020510", name: "Minkoa" },
+                { id: "CE020511", name: "Ngoas" },
+                { id: "CE020512", name: "Ngoulemekong" },
+                { id: "CE020513", name: "Nkolbeyegle" },
+                { id: "CE020514", name: "Nkolmeyang" },
+                { id: "CE020515", name: "Nkolnguet" },
+                { id: "CE020516", name: "Nkolyem" },
+                { id: "CE020517", name: "Nkongmessa" },
+                { id: "CE020518", name: "Nlong" },
+                { id: "CE020519", name: "Ovang" },
+                { id: "CE020520", name: "Ozom 1" },
+                { id: "CE020521", name: "Ozom 2" },
+                { id: "CE020522", name: "Ozom 3" },
+                { id: "CE020523", name: "Tikong" },
+                { id: "CE020524", name: "Tsek" },
+                { id: "CE020525", name: "Voa 3" }
+              ]
+            },
+            {
+              id: "CE-02-06",
+              name: "Monatélé",
+              villages: [
+                { id: "CE020601", name: "Allogene 1" },
+                { id: "CE020602", name: "Allogene 2" },
+                { id: "CE020603", name: "Allogene 3" },
+                { id: "CE020604", name: "Ekot" },
+                { id: "CE020605", name: "Elon" },
+                { id: "CE020606", name: "Emazang" },
+                { id: "CE020607", name: "Ekecom" },
+                { id: "CE020608", name: "Elon" },
+                { id: "CE020609", name: "Ettom" },
+                { id: "CE020610", name: "Eyeng-Meyong" },
+                { id: "CE020611", name: "Nkol Onana" },
+                { id: "CE020612", name: "Ngomo Centre" },
+                { id: "CE020613", name: "Ngomo Maire" },
+                { id: "CE020614", name: "Nkongmedog" },
+                { id: "CE020615", name: "Nkongmessa" },
+                { id: "CE020616", name: "Nkolkossé" },
+                { id: "CE020617", name: "Nkomek" },
+                { id: "CE020618", name: "Nkolbeyegle" },
+                { id: "CE020619", name: "Nkolmba" },
+                { id: "CE020620", name: "Mvog Onamenye" },
+                { id: "CE020621", name: "Nkongmessou" },
+                { id: "CE020622", name: "Poopoma" },
+                { id: "CE020623", name: "Monatélé" },
+                { id: "CE020624", name: "Monatélé Ville" },
+                { id: "CE020625", name: "Ndoup Quartier" },
+                { id: "CE020626", name: "Nouveau Quartier" },
+                { id: "CE020627", name: "Obeng" },
+                { id: "CE020628", name: "Sous-Bois" },
+                { id: "CE020629", name: "Etom" },
+                { id: "CE020630", name: "Lenouk" },
+                { id: "CE020631", name: "Levem" },
+                { id: "CE020632", name: "Mong" },
+                { id: "CE020633", name: "Ndoup" },
+                { id: "CE020634", name: "Nkoledad" },
+                { id: "CE020635", name: "Nkolemelen" },
+                { id: "CE020636", name: "Nkongal" },
+                { id: "CE020637", name: "Nkolewono" },
+                { id: "CE020638", name: "Nkongmessa I" },
+                { id: "CE020639", name: "Nkongmessa II" },
+                { id: "CE020640", name: "Ntol" },
+                { id: "CE020641", name: "Ossebe" },
+                { id: "CE020642", name: "Eyeng-Meyong" },
+                { id: "CE020643", name: "Ekouda" },
+                { id: "CE020644", name: "Elig-Bikoun" },
+                { id: "CE020645", name: "Ngama" },
+                { id: "CE020646", name: "Nkolfeb" },
+                { id: "CE020647", name: "Nkol-Ngobo" },
+                { id: "CE020648", name: "Nkollon" },
+                { id: "CE020649", name: "Kougouda" },
+                { id: "CE020650", name: "Ebanga" },
+                { id: "CE020651", name: "Ebolmongo" },
+                { id: "CE020652", name: "Ngomo Maire" }
+              ]
+            },
+            {
+              id: "CE-02-07",
+              name: "Obala",
+              villages: [
+                { id: "CE020702", name: "Abokono" },
+                { id: "CE020725", name: "Afambassi-Elande" },
+                { id: "CE020725", name: "Abono" },
+                { id: "CE020703", name: "Bikogassi" },
+                { id: "CE020715", name: "Benyada Sud" },
+                { id: "CE020780", name: "Obala Rural" },
+                { id: "CE020701", name: "Obala Ville" },
+                { id: "CE020704", name: "Ebolakoun" },
+                { id: "CE020705", name: "Elig-Bessala" },
+                { id: "CE020728", name: "Elig Bodo" },
+                { id: "CE020706", name: "Elot 1" },
+                { id: "CE020707", name: "Elot 2" },
+                { id: "CE020716", name: "Elomzok" },
+                { id: "CE020708", name: "Foulassi" },
+                { id: "CE020709", name: "Mboua 1" },
+                { id: "CE020710", name: "Mboua 2" },
+                { id: "CE020711", name: "Ndjong-Mezegue" },
+                { id: "CE020712", name: "Nkolbikok" },
+                { id: "CE020713", name: "Zone 1" },
+                { id: "CE020714", name: "Zone 2" },
+                { id: "CE020717", name: "Minkama" },
+                { id: "CE020718", name: "Nkol Ekui" },
+                { id: "CE020719", name: "Village Pionnier" },
+                { id: "CE020720", name: "Efok" },
+                { id: "CE020721", name: "Efok 2" },
+                { id: "CE020722", name: "Ntsan" },
+                { id: "CE020723", name: "Tsek" },
+                { id: "CE020724", name: "Endinding" },
+                { id: "CE020730", name: "Endinding 2" },
+                { id: "CE020731", name: "Essong" },
+                { id: "CE020732", name: "Etong Bidjoé" },
+                { id: "CE020733", name: "Ezezang Essélé" },
+                { id: "CE020734", name: "Mbakomo" },
+                { id: "CE020735", name: "Nkol Tsogo 1" },
+                { id: "CE020736", name: "Nkol Tsogo 2" },
+                { id: "CE020737", name: "Nkot Abang" },
+                { id: "CE020738", name: "Zima" },
+                { id: "CE020739", name: "Zouatoupsi" },
+                { id: "CE020740", name: "Loua" },
+                { id: "CE020741", name: "Kom-Mvog-Kani" },
+                { id: "CE020742", name: "Loua 1" },
+                { id: "CE020743", name: "Loua 2" },
+                { id: "CE020744", name: "Ngongo" },
+                { id: "CE020745", name: "Nkolewodo" },
+                { id: "CE020746", name: "Nkol Fon (Mbele 1)" },
+                { id: "CE020747", name: "Nkoltomo 2" },
+                { id: "CE020748", name: "Yemessoa 1" },
+                { id: "CE020749", name: "Yemessoa 2" },
+                { id: "CE020750", name: "Yemkout" },
+                { id: "CE020751", name: "Mendoum" },
+                { id: "CE020752", name: "Ekabita Mendoum" },
+                { id: "CE020753", name: "Ezezang Mendoum" },
+                { id: "CE020754", name: "Mfomakap" },
+                { id: "CE020755", name: "Mindjomo" },
+                { id: "CE020756", name: "Mvog-Dzigui" },
+                { id: "CE020757", name: "Nkol Mendouga" },
+                { id: "CE020758", name: "Nkol Ntara" },
+                { id: "CE020759", name: "Nkol Tima" },
+                { id: "CE020760", name: "Nkom Ndamba" },
+                { id: "CE020761", name: "Nkometou 2" },
+                { id: "CE020762", name: "Yemsoum 1" },
+                { id: "CE020763", name: "Yemsoum 2" },
+                { id: "CE020764", name: "Nkol Feb" },
+                { id: "CE020765", name: "Elig Nkoma 1" },
+                { id: "CE020766", name: "Elig Nkoma 2" },
+                { id: "CE020767", name: "Elig Ntsogo" },
+                { id: "CE020768", name: "Etoud-Ayos" },
+                { id: "CE020769", name: "Koudandeng" },
+                { id: "CE020770", name: "Lékié Assi" },
+                { id: "CE020771", name: "Nkol Feb 2" },
+                { id: "CE020772", name: "Nkol Ndobo" },
+                { id: "CE020773", name: "Nkomefoufum" },
+                { id: "CE020774", name: "Nto" },
+                { id: "CE020775", name: "Zima" },
+                { id: "CE020776", name: "Nkoledouma" },
+                { id: "CE020777", name: "Mbélé 1" },
+                { id: "CE020778", name: "Mbélé 2" },
+                { id: "CE020779", name: "Nkoledouma 2" }
+              ]
+            },
+            {
+              id: "CE-02-08",
+              name: "Arrondissement d'Okola",
+              villages: [
+                { id: "CE020801", name: "Bilon 1" },
+                { id: "CE020802", name: "Bilon 2" },
+                { id: "CE020803", name: "Ebod" },
+                { id: "CE020804", name: "Ekabita Tom" },
+                { id: "CE020805", name: "Ekong" },
+                { id: "CE020806", name: "Eviane" },
+                { id: "CE020807", name: "Fegrinbang" },
+                { id: "CE020808", name: "Metak" },
+                { id: "CE020809", name: "Mintotomo" },
+                { id: "CE020810", name: "Mvoua" },
+                { id: "CE020811", name: "Ngoya 1" },
+                { id: "CE020812", name: "Ngoya 2" },
+                { id: "CE020813", name: "Ngoya 3" },
+                { id: "CE020814", name: "Nkolekotsing" },
+                { id: "CE020815", name: "Nkolbe" },
+                { id: "CE020816", name: "Nkolmedoua" },
+                { id: "CE020817", name: "Nkolfeb" },
+                { id: "CE020818", name: "Nkolfem" },
+                { id: "CE020819", name: "Nkolewodo" },
+                { id: "CE020820", name: "Nkong" },
+                { id: "CE020821", name: "Nkongmedog" },
+                { id: "CE020822", name: "Nkol" },
+                { id: "CE020823", name: "Nkongmessa" },
+                { id: "CE020824", name: "Okoukoudou" },
+                { id: "CE020825", name: "Poopoma" },
+                { id: "CE020826", name: "Song Onana" },
+                { id: "CE020827", name: "Yegassi" }
+              ]
+            },
+            {
+              id: "CE-02-08",
+              name: "Arrondissement de Sa'a",
+              villages: [
+                { id: "CE020801", name: "Abel" },
+                { id: "CE020802", name: "Administratif" },
+                { id: "CE020803", name: "Bamiléké" },
+                { id: "CE020804", name: "Commercial" },
+                { id: "CE020805", name: "Crat" },
+                { id: "CE020806", name: "Ebombo" },
+                { id: "CE020807", name: "Ebang Minala" },
+                { id: "CE020808", name: "Ekan Minko" },
+                { id: "CE020809", name: "Ekekom" },
+                { id: "CE020810", name: "Ekoum-Douma" },
+                { id: "CE020811", name: "Ekoum-Ondom" },
+                { id: "CE020812", name: "Elang" },
+                { id: "CE020813", name: "Engab" },
+                { id: "CE020814", name: "Essolmeyong" },
+                { id: "CE020815", name: "Elessogue" },
+                { id: "CE020816", name: "Haoussa" },
+                { id: "CE020817", name: "Koe" },
+                { id: "CE020818", name: "Kokoe" },
+                { id: "CE020819", name: "Kouna Odjolo" },
+                { id: "CE020820", name: "Lac" },
+                { id: "CE020821", name: "Lekoubek" },
+                { id: "CE020822", name: "Lebamzip" },
+                { id: "CE020823", name: "Lebamzip I" },
+                { id: "CE020824", name: "Lebamzip II" },
+                { id: "CE020825", name: "Manelong" },
+                { id: "CE020826", name: "Mbama" },
+                { id: "CE020827", name: "Mbassila" },
+                { id: "CE020828", name: "Mbilmana" },
+                { id: "CE020829", name: "Mekimebodo" },
+                { id: "CE020830", name: "Melik" },
+                { id: "CE020831", name: "Mengama" },
+                { id: "CE020832", name: "Mengon" },
+                { id: "CE020833", name: "Mendo-Mokala" },
+                { id: "CE020834", name: "Momo" },
+                { id: "CE020835", name: "Nkol Awono" },
+                { id: "CE020836", name: "Nkol Bogo" },
+                { id: "CE020837", name: "Nkol Bogo I" },
+                { id: "CE020838", name: "Nkol Bogo II" },
+                { id: "CE020839", name: "Nkol Bogo III" },
+                { id: "CE020840", name: "Nkol Essono" },
+                { id: "CE020841", name: "Nkol Kaï" },
+                { id: "CE020842", name: "Nkol Meki" },
+                { id: "CE020843", name: "Nkol Mekok" },
+                { id: "CE020844", name: "Nkol Mefon" },
+                { id: "CE020845", name: "Nkol Mgbana" },
+                { id: "CE020846", name: "Nkol Meyos" },
+                { id: "CE020847", name: "Nkol Ntsa" },
+                { id: "CE020848", name: "Nkol Ngok" },
+                { id: "CE020849", name: "Nkol Ofoumbi" },
+                { id: "CE020850", name: "Nkol Zoa I" },
+                { id: "CE020851", name: "Nkol Zoa II" },
+                { id: "CE020852", name: "Nkol Zamba" },
+                { id: "CE020853", name: "Nkol Zomo" },
+                { id: "CE020854", name: "Nkol-Ebae" },
+                { id: "CE020855", name: "Nkolmesseng" },
+                { id: "CE020856", name: "Nkolondogo" },
+                { id: "CE020857", name: "Nlongzok" },
+                { id: "CE020858", name: "Nsan Mendouga" },
+                { id: "CE020859", name: "Ntsa Ekang" },
+                { id: "CE020860", name: "Ondondo I" },
+                { id: "CE020861", name: "Ondondo II" },
+                { id: "CE020862", name: "Poopoma" },
+                { id: "CE020863", name: "Polo" },
+                { id: "CE020864", name: "Prison" },
+                { id: "CE020865", name: "Sa'a Ville" },
+                { id: "CE020866", name: "Sa'a Rural" },
+                { id: "CE020867", name: "Song Onana" },
+                { id: "CE020868", name: "Womkoa" },
+                { id: "CE020869", name: "Yegassi" }
+              ]
+            },
+          ]
+        },
+
+          {
+            id: 'CE-03',
+            name: 'MBAM ET INOUBOU',
+            arrondissements: [
+              {
+                id: "SU-03-01",
+                name: "Bafia",
+                villages: [
+                  { id: "SU030101", name: "Bafia" },
+                  { id: "SU030102", name: "Bafia Ville" },
+                  { id: "SU030103", name: "Biabegoura" },
+                  { id: "SU030104", name: "Biaberebe" },
+                  { id: "SU030105", name: "Biabetom" },
+                  { id: "SU030106", name: "Biabeyakan" },
+                  { id: "SU030107", name: "Biabezok" },
+                  { id: "SU030108", name: "Biatsota" },
+                  { id: "SU030109", name: "Bigna I" },
+                  { id: "SU030110", name: "Bisseh" },
+                  { id: "SU030111", name: "Boro" },
+                  { id: "SU030112", name: "Dobatem" },
+                  { id: "SU030113", name: "Doguem" },
+                  { id: "SU030114", name: "Doniribouem" },
+                  { id: "SU030115", name: "Fatoch I" },
+                  { id: "SU030116", name: "Fatoch II" },
+                  { id: "SU030117", name: "Gah-Dang" },
+                  { id: "SU030118", name: "Gondon" },
+                  { id: "SU030119", name: "Lable" },
+                  { id: "SU030120", name: "Messangsang" },
+                  { id: "SU030121", name: "Ndengue" },
+                  { id: "SU030122", name: "Nloh" },
+                  { id: "SU030123", name: "Nyamsong I" },
+                  { id: "SU030124", name: "Nyamsong II" },
+                  { id: "SU030125", name: "Nyamsong III" },
+                  { id: "SU030126", name: "Nyouka I" },
+                  { id: "SU030127", name: "Nyouka II" },
+                  { id: "SU030128", name: "Riboate" },
+                  { id: "SU030129", name: "Rigama" },
+                  { id: "SU030130", name: "Rimis I" },
+                  { id: "SU030131", name: "Rimis II" },
+                  { id: "SU030132", name: "Rionong" },
+                  { id: "SU030133", name: "Rizotse I" },
+                  { id: "SU030134", name: "Sanam" },
+                  { id: "SU030135", name: "Koro" },
+                  { id: "SU030136", name: "Donenkeng I" },
+                  { id: "SU030137", name: "Egona I" },
+                  { id: "SU030138", name: "Goufan I" },
+                  { id: "SU030139", name: "Goufan II" },
+                  { id: "SU030140", name: "Ngomo" },
+                  { id: "SU030141", name: "Taro" },
+                  { id: "SU030142", name: "Tsekani" },
+                  { id: "SU030143", name: "Lemande" },
+                  { id: "SU030144", name: "Nyambaye" },
+                  { id: "SU030145", name: "Omeng" }
+                ]
+              },
+              {
+                id: "SU-03-02",
+                name: "Bokito",
+                villages: [
+                  { id: "SU030201", name: "Bokito" },
+                  { id: "SU030202", name: "Bokito Ville" },
+                  { id: "SU030203", name: "Bokito Centre 1" },
+                  { id: "SU030204", name: "Bokito Centre 2" },
+                  { id: "SU030205", name: "Nyamanga" },
+                  { id: "SU030206", name: "Elip" },
+                  { id: "SU030207", name: "Balamba I" },
+                  { id: "SU030208", name: "Balamba II" },
+                  { id: "SU030209", name: "Bassolo" },
+                  { id: "SU030210", name: "Boalondo" },
+                  { id: "SU030211", name: "Bongando" },
+                  { id: "SU030212", name: "Botatango" },
+                  { id: "SU030213", name: "Botombo" },
+                  { id: "SU030214", name: "Kananga" },
+                  { id: "SU030215", name: "Kilikoto" },
+                  { id: "SU030216", name: "Yambassa" },
+                  { id: "SU030217", name: "Gounou" },
+                  { id: "SU030218", name: "Assala II" },
+                  { id: "SU030219", name: "Gounou Sud" },
+                  { id: "SU030220", name: "Assala I" },
+                  { id: "SU030221", name: "Bakoa" },
+                  { id: "SU030222", name: "Bokaga" },
+                  { id: "SU030223", name: "Gueboba" },
+                  { id: "SU030224", name: "Guefigue" },
+                  { id: "SU030225", name: "Lemande" },
+                  { id: "SU030226", name: "Bougnoungoulouk" },
+                  { id: "SU030227", name: "Ossimb I" },
+                  { id: "SU030228", name: "Ossimb II" },
+                  { id: "SU030229", name: "Tchekos" },
+                  { id: "SU030230", name: "Tobagne" },
+                  { id: "SU030231", name: "Mmala" },
+                  { id: "SU030232", name: "Begni" },
+                  { id: "SU030233", name: "Bokito Village" },
+                  { id: "SU030234", name: "Ediolomo" },
+                  { id: "SU030235", name: "Kedia" },
+                  { id: "SU030236", name: "Yorro" },
+                  { id: "SU030237", name: "Yangben" },
+                  { id: "SU030238", name: "Batanga" },
+                  { id: "SU030239", name: "Bongo" },
+                  { id: "SU030240", name: "Mbola" },
+                  { id: "SU030241", name: "Omende" },
+                  { id: "SU030242", name: "Yangben" }
+                ]
+              },
+              {
+                id: "SU-03-03",
+                name: "Deuk",
+                villages: [
+                    { id: "SU030301", name: "Banda" },
+                    { id: "SU030302", name: "Beandong" },
+                    { id: "SU030303", name: "Bissia" },
+                    { id: "SU030304", name: "Boko" },
+                    { id: "SU030305", name: "Bee" },
+                    { id: "SU030306", name: "Balom 2" },
+                    { id: "SU030307", name: "Balom I Nord" },
+                    { id: "SU030308", name: "Balom I Sud" },
+                    { id: "SU030309", name: "Tsongo" },
+                    { id: "SU030310", name: "Djaga" },
+                    { id: "SU030311", name: "Diouma" },
+                    { id: "SU030312", name: "Deuk" },
+                    { id: "SU030313", name: "Deuk Ville" },
+                    { id: "SU030314", name: "Deuk Centre" },
+                    { id: "SU030315", name: "Deuk II" },
+                    { id: "SU030316", name: "Fiang" },
+                    { id: "SU030317", name: "Gah" },
+                    { id: "SU030318", name: "Gbah" },
+                    { id: "SU030319", name: "Goufe" },
+                    { id: "SU030320", name: "Kop" },
+                    { id: "SU030321", name: "Mbim" },
+                    { id: "SU030322", name: "Mouzi" },
+                    { id: "SU030323", name: "Mpagne" },
+                    { id: "SU030324", name: "Mpouga" },
+                    { id: "SU030325", name: "Ndanekong" },
+                    { id: "SU030326", name: "Ndambi" },
+                    { id: "SU030327", name: "Nkang" },
+                    { id: "SU030328", name: "Nkoubou" },
+                    { id: "SU030329", name: "Nyamzom" },
+                    { id: "SU030330", name: "Zakan" },
+                    { id: "SU030331", name: "Zock Kidoun" },
+                    { id: "SU030332", name: "Zock Montagne" }
+                  ]
+              },
+              {
+                id: "SU-03-04",
+                name: "Kiiki",
+                villages: [
+                  { id: "SU030401", name: "Biamesse" },
+                  { id: "SU030402", name: "Bitang" },
+                  { id: "SU030403", name: "Bep" },
+                  { id: "SU030404", name: "Bougnin à Mbang" },
+                  { id: "SU030405", name: "Bougnin à Nfin" },
+                  { id: "SU030406", name: "Clan Bekke" },
+                  { id: "SU030407", name: "Mouko" },
+                  { id: "SU030408", name: "Mouken" },
+                  { id: "SU030409", name: "Kipwo" },
+                  { id: "SU030410", name: "Kiiki" },
+                  { id: "SU030411", name: "Ndimi II" },
+                  { id: "SU030412", name: "Ndimi I" },
+                  { id: "SU030413", name: "Nkokoe" },
+                  { id: "SU030414", name: "Yakan I" },
+                  { id: "SU030415", name: "Yakan II" },
+                  { id: "SU030416", name: "Gouife" },
+                  { id: "SU030417", name: "Ribang" }
+                ]
+              },              
+            ]
+           }
+      ]
+    },
+    {
+      id: '03',
+      name: 'L\'OUEST',
+      departments: [
+        {
+          id: '0E',
+          name: 'BAMBOUTOS',
+          arrondissements: [
+            {
+              id: 'OE-01-01',
+              name: 'BABADJOU',
+              villages: [
+                { id: "OE010101", name: "Bachua" },
+                { id: "OE010102", name: "Baledo" },
+                { id: "OE010103", name: "Bamedji" },
+                { id: "OE010104", name: "Bamedou" },
+                { id: "OE010105", name: "Bamedousso" },
+                { id: "OE010106", name: "Bamegnia" },
+                { id: "OE010107", name: "Bamelou" },
+                { id: "OE010108", name: "Bamekoue" },
+                { id: "OE010109", name: "Bamepa" },
+                { id: "OE010110", name: "Bametogoung" },
+                { id: "OE010111", name: "Bawa" },
+                { id: "OE010112", name: "Gagong" },
+                { id: "OE010113", name: "King Place" },
+                { id: "OE010114", name: "Madjui" },
+                { id: "OE010115", name: "Mantset" },
+                { id: "OE010116", name: "Mogni" },
+                { id: "OE010117", name: "Njingha" },
+                { id: "OE010118", name: "Ntounga" },
+                { id: "OE010119", name: "Niwang" },
+                { id: "OE010120", name: "Topelou" }
+              ]
+            },
+            {
+              id: "OE-01-02",
+              name: "Batcham",
+              villages: [
+                { id: "OE010201", name: "Ba'a" },
+                { id: "OE010202", name: "Babekou" },
+                { id: "OE010203", name: "Bachio" },
+                { id: "OE010204", name: "Badatchio" },
+                { id: "OE010205", name: "Badengang" },
+                { id: "OE010206", name: "Baghang I" },
+                { id: "OE010207", name: "Bakapfong" },
+                { id: "OE010208", name: "Bakoum" },
+                { id: "OE010209", name: "Bakonti" },
+                { id: "OE010210", name: "Balakam" },
+                { id: "OE010211", name: "Baladjeutsa" },
+                { id: "OE010212", name: "Balafotio" },
+                { id: "OE010213", name: "Balekeu" },
+                { id: "OE010214", name: "Balekouet" },
+                { id: "OE010215", name: "Balepi" },
+                { id: "OE010216", name: "Baletia" },
+                { id: "OE010217", name: "Balewe" },
+                { id: "OE010218", name: "Balie" },
+                { id: "OE010219", name: "Balatchuet" },
+                { id: "OE010220", name: "Balouo" },
+                { id: "OE010221", name: "Bamougong" },
+                { id: "OE01022", name: "Bamboue" },
+                { id: "OE010223", name: "Bameboro" },
+                { id: "OE010224", name: "Bameghui" },
+                { id: "OE010225", name: "Bamela" },
+                { id: "OE010226", name: "Bamelang" },
+                { id: "OE010227", name: "Bamelio" },
+                { id: "OE010228", name: "Bamemba" },
+                { id: "OE010230", name: "Bamembou" },
+                { id: "OE010231", name: "Bamendou" },
+                { id: "OE010232", name: "Bamenguea I" },
+                { id: "OE010233", name: "Bamenguea II" },
+                { id: "OE010234", name: "Bamessa I" },
+                { id: "OE010235", name: "Bamessa II" },
+                { id: "OE010236", name: "Bametim" },
+                { id: "OE010237", name: "Bamoughang" },
+                { id: "OE010238", name: "Bandjuinla I" },
+                { id: "OE010239", name: "Bandjuinla II" },
+                { id: "OE010240", name: "Banghang II" },
+                { id: "OE010241", name: "Bangouo" },
+                { id: "OE010242", name: "Bangueala" },
+                { id: "OE010243", name: "Bankak" },
+                { id: "OE010244", name: "Bantsa" },
+                { id: "OE010245", name: "Bantsiet" },
+                { id: "OE010246", name: "Batcham" },
+                { id: "OE010247", name: "Batcham Ville" },
+                { id: "OE010248", name: "Batchuedjifo" },
+                { id: "OE010249", name: "Batoumoc I" },
+                { id: "OE010250", name: "Batoumoc 2" },
+                { id: "OE010251", name: "Batokap" },
+                { id: "OE010252", name: "Batonga" },
+                { id: "OE010253", name: "Batuola" },
+                { id: "OE010254", name: "Batsa'a" },
+                { id: "OE010255", name: "Centre Urbain I" },
+                { id: "OE010256", name: "Centre Urbain II" },
+                { id: "OE010257", name: "Fomelie" },
+                { id: "OE010258", name: "King-Place" },
+                { id: "OE010259", name: "Kontia" },
+                { id: "OE010260", name: "Kontsé" },
+                { id: "OE010261", name: "Kountia" },
+                { id: "OE010262", name: "Kouotse" },
+                { id: "OE010263", name: "Mandah" },
+                { id: "OE010264", name: "Mepibéa" },
+                { id: "OE010265", name: "Messang" },
+                { id: "OE010266", name: "Metio" },
+                { id: "OE010267", name: "Nkop" },
+                { id: "OE010268", name: "Nziehbieng" },
+                { id: "OE010269", name: "Saakia" },
+                { id: "OE010270", name: "Tomogho I" },
+                { id: "OE010271", name: "Tomogo II" },
+                { id: "OE010272", name: "Tsopia" },
+                { id: "OE010273", name: "Tuesong" },
+                { id: "OE010274", name: "Zemezong" },
+                { id: "OE010275", name: "Zemtchuet" }
+              ]
+            },
+            {
+              id: "OE-01-03",
+              name: "Galim",
+              villages: [
+                { id: "OE010301", name: "Bagam" },
+                { id: "OE010302", name: "Betsing" },
+                { id: "OE010303", name: "Betsop" },
+                { id: "OE010304", name: "Betsouo" },
+                { id: "OE010305", name: "Bororo I" },
+                { id: "OE010306", name: "Bororo II" },
+                { id: "OE010307", name: "Bororo III" },
+                { id: "OE010308", name: "Centre Urbain" },
+                { id: "OE010309", name: "Feghong" },
+                { id: "OE010310", name: "Galim Ville" },
+                { id: "OE010311", name: "Haoussa" },
+                { id: "OE010312", name: "Kieneghang I" },
+                { id: "OE010313", name: "Kieneghang II" },
+                { id: "OE010314", name: "Kieneghang III" },
+                { id: "OE010315", name: "Kiemvé" },
+                { id: "OE010316", name: "King Place I" },
+                { id: "OE010317", name: "King Place II" },
+                { id: "OE010318", name: "Kuiffo" },
+                { id: "OE010319", name: "Massang" },
+                { id: "OE010320", name: "Mbafa" },
+                { id: "OE010321", name: "Mbakop" },
+                { id: "OE010322", name: "Mbamekoupéré" },
+                { id: "OE010323", name: "Mbamong" },
+                { id: "OE010324", name: "Mbapehe" },
+                { id: "OE010325", name: "Mbefo" },
+                { id: "OE010326", name: "Mbefoung" },
+                { id: "OE010327", name: "Mbeghang" },
+                { id: "OE010328", name: "Mbekong-Magap" },
+                { id: "OE010329", name: "Mbepeh" },
+                { id: "OE010330", name: "Mbessa" },
+                { id: "OE010331", name: "Mbeve I" },
+                { id: "OE010332", name: "Mbeve II" },
+                { id: "OE010333", name: "Mebong-Sessé, Mevobo" },
+                { id: "OE010334", name: "Megoh" },
+                { id: "OE010335", name: "Menfoung" },
+                { id: "OE010336", name: "Messe" },
+                { id: "OE010337", name: "Meviendung" },
+                { id: "OE010338", name: "Mevobo" },
+                { id: "OE010339", name: "Mifi" },
+                { id: "OE010340", name: "Monbap" },
+                { id: "OE010341", name: "Ngoghoup" },
+                { id: "OE010342", name: "Ngoyo" },
+                { id: "OE010343", name: "Quartier du Centre Urbain" },
+                { id: "OE010344", name: "Tasse-Yeyep" },
+                { id: "OE010345", name: "Tata" },
+                { id: "OE010346", name: "Tsinegha" },
+                { id: "OE010347", name: "Tsissap" },
+                { id: "OE010348", name: "Village Pilote" }
+              ]
+            },
+            {
+              id: "OE-01-04",
+              name: "MBOUDA",
+              villages: [
+                { id: "OE010401", name: "Bafounda" },
+                { id: "OE010402", name: "Babeté" },
+                { id: "OE010403", name: "Badjitsi Nord" },
+                { id: "OE010404", name: "Badjitsi Sud" },
+                { id: "OE010405", name: "Badjuding" },
+                { id: "OE010406", name: "Bagading 1" },
+                { id: "OE010407", name: "Bagading 2" },
+                { id: "OE010408", name: "Bagombo 1" },
+                { id: "OE010409", name: "Bagombo 2" },
+                { id: "OE010410", name: "Bagombo 3" },
+                { id: "OE010411", name: "Bagatchio 1" },
+                { id: "OE010412", name: "Bagatchio 2" },
+                { id: "OE010413", name: "Bakanssong" },
+                { id: "OE010414", name: "Bakie" },
+                { id: "OE010415", name: "Bakogha" },
+                { id: "OE010416", name: "Bakouotio" },
+                { id: "OE010417", name: "Bakonti" },
+                { id: "OE010418", name: "Bamaka" },
+                { id: "OE010419", name: "Bamebin" },
+                { id: "OE010420", name: "Bamela" },
+                { id: "OE010421", name: "Bamelim" },
+                { id: "OE010422", name: "Bamendjinda" },
+                { id: "OE010423", name: "Bamatha" },
+                { id: "OE010424", name: "Bamenkombo" },
+                { id: "OE010425", name: "Bamessingue Ville" },
+                { id: "OE010426", name: "Bantcheupi" },
+                { id: "OE010427", name: "Bantané" },
+                { id: "OE010428", name: "Bato" },
+                { id: "OE010429", name: "Batomeni" },
+                { id: "OE010430", name: "Batomeni" },
+                { id: "OE010431", name: "Batoussi" },
+                { id: "OE010432", name: "Batseula 2" },
+                { id: "OE010433", name: "Batseupa" },
+                { id: "OE010434", name: "Batshepa" },
+                { id: "OE010435", name: "Batoundja" },
+                { id: "OE010436", name: "Batchisso 1" },
+                { id: "OE010437", name: "Batchisso 2" },
+                { id: "OE010438", name: "Batchisso 3" },
+                { id: "OE010439", name: "Batchisso 4" },
+                { id: "OE010440", name: "Batchisso 5" },
+                { id: "OE010441", name: "Batoula 1" },
+                { id: "OE010442", name: "Batoula 2" },
+                { id: "OE010443", name: "Batsella 1" },
+                { id: "OE010444", name: "Batsella 2" },
+                { id: "OE010445", name: "Balatchi" },
+                { id: "OE010446", name: "Banock 1" },
+                { id: "OE010447", name: "Banock 2" },
+                { id: "OE010448", name: "Bassonkeng" },
+                { id: "OE010449", name: "Bazinmaguong" },
+                { id: "OE010450", name: "Bogakou" },
+                { id: "OE010451", name: "Bodoutseu" },
+                { id: "OE010452", name: "Bondjingho" },
+                { id: "OE010453", name: "Bondjinleng" },
+                { id: "OE010454", name: "Bororo" },
+                { id: "OE010455", name: "Latet 1" },
+                { id: "OE010456", name: "Latet 2" },
+                { id: "OE010457", name: "Lafi 1" },
+                { id: "OE010458", name: "Lafi 2" },
+                { id: "OE010459", name: "Mboumetio" },
+                { id: "OE010460", name: "Motseutsa" },
+                { id: "OE010461", name: "Motsa" },
+                { id: "OE010462", name: "Ntoutetout" },
+                { id: "OE010463", name: "Nenenghou" },
+                { id: "OE010464", name: "Nzintsuet" },
+                { id: "OE010465", name: "Nzintia" },
+                { id: "OE010466", name: "Nzenepa" },
+                { id: "OE010467", name: "Poneki 1" },
+                { id: "OE010468", name: "Poneki 2" },
+                { id: "OE010469", name: "Rapide" },
+                { id: "OE010470", name: "Tap" },
+                { id: "OE010471", name: "Koumgu" },
+                { id: "OE010472", name: "Tseding" },
+                { id: "OE010473", name: "Tsella" },
+                { id: "OE010474", name: "Tsoumontchio" },
+                { id: "OE010475", name: "Tsuegwé" }
+              ]
+
+             },
+            
+          ]
+        },
+        {
+          id: 'OE-02',
+          name: 'HAUT-NKAM',
+          arrondissements: [
+            {
+              id: 'OE-02-01',
+              name: 'BAFANG',
+              villages: [
+                { id: 'LT-02-01-01', name: 'Édéa' },
+                { id: 'LT-02-01-02', name: 'Dehane' }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: '04',
+      name: 'Nord',
+      departments: [
+        {
+          id: 'NO-01',
+          name: 'Bénoué',
+          arrondissements: [
+            {
+              id: 'NO-01-01',
+              name: 'Garoua I',
+              villages: [
+                { id: 'NO-01-01-01', name: 'Garoua' },
+                { id: 'NO-01-01-02', name: 'Lainde' }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      id: '05',
+      name: 'Sud',
+      departments: [
+        {
+          id: 'SU-01',
+          name: 'Dja et Lobo',
+          arrondissements: [
+            {
+              id: "SU-01-01",
+              name: "Bengbis",
+              villages:[
+              { id: "SU010101", name: "Akom-Ndong" },
+              { id: "SU010102", name: "Bengbis" },
+              { id: "SU010103", name: "Bengbis Ville" },
+              { id: "SU010104", name: "Bibinda" },
+              { id: "SU010105", name: "Bissombo" },
+              { id: "SU010106", name: "Biton" },
+              { id: "SU010107", name: "Bulu-Dja" },
+              { id: "SU010108", name: "Centre Administratif" },
+              { id: "SU010109", name: "Koungoulou" },
+              { id: "SU010110", name: "Madagascar" },
+              { id: "SU010111", name: "Mbizo'o" },
+              { id: "SU010112", name: "Mbometa'a" },
+              { id: "SU010113", name: "Meka'a" },
+              { id: "SU010114", name: "Mekas'" },
+              { id: "SU010115", name: "Mimbil" },
+              { id: "SU010116", name: "Mimbil" },
+              { id: "SU010117", name: "Mvom-Bella" },
+              { id: "SU010118", name: "Nkolembembe" },
+              { id: "SU010119", name: "Nkouleze" },
+              { id: "SU010120", name: "Nsimalene" },
+              { id: "SU010121", name: "Nyabizou" },
+              { id: "SU010122", name: "Pays-Bas" }
+              ]
+            },
+            {
+              id: 'SU-01-02',
+              name: 'Djoum',
+              villages:[
+                { id: "SU010201", name: "Accra" },
+                { id: "SU010202", name: "Adjap" },
+                { id: "SU010203", name: "Akak" },
+                { id: "SU010204", name: "Akom-Binyeng" },
+                { id: "SU010205", name: "Akom-Zamane" },
+                { id: "SU010206", name: "Akonetye" },
+                { id: "SU010207", name: "Akontangane" },
+                { id: "SU010208", name: "Alat-Makae" },
+                { id: "SU010209", name: "Alop" },
+                { id: "SU010210", name: "Amvam" },
+                { id: "SU010211", name: "Ayene" },
+                { id: "SU010212", name: "Avebe" },
+                { id: "SU010213", name: "Avobengono" },
+                { id: "SU010214", name: "Bebo'o Bella" },
+                { id: "SU010215", name: "Bindoumba" },
+                { id: "SU010216", name: "Bitebiokang" },
+                { id: "SU010217", name: "Bilik-Akom" },
+                { id: "SU010218", name: "Bulu" },
+                { id: "SU010219", name: "Djoum" },
+                { id: "SU010220", name: "Djoum Ville" },
+                { id: "SU010221", name: "Djoum-Village" },
+                { id: "SU010222", name: "Djop" },
+                { id: "SU010223", name: "Djouze" },
+                { id: "SU010224", name: "Doum" },
+                { id: "SU010225", name: "Efoulan" },
+                { id: "SU010226", name: "Elleng" },
+                { id: "SU010227", name: "Endengue" },
+                { id: "SU010228", name: "Essong" },
+                { id: "SU010229", name: "Étoile" },
+                { id: "SU010230", name: "Fang-Centre" },
+                { id: "SU010231", name: "Evindissi" },
+                { id: "SU010232", name: "Kaka" },
+                { id: "SU010233", name: "Mebane I" },
+                { id: "SU010234", name: "Mebane II" },
+                { id: "SU010235", name: "Mendoung" },
+                { id: "SU010236", name: "Melen-Boulou" },
+                { id: "SU010237", name: "Melen-Zamane" },
+                { id: "SU010238", name: "Miatta" },
+                { id: "SU010239", name: "Mfem" },
+                { id: "SU010240", name: "Minko'o" },
+                { id: "SU010241", name: "Minko'o Messeng" },
+                { id: "SU010242", name: "Mbouma" },
+                { id: "SU010243", name: "Meyos III" },
+                { id: "SU010244", name: "Meyos-Obam" },
+                { id: "SU010245", name: "Mveng" },
+                { id: "SU010246", name: "Nkan" },
+                { id: "SU010247", name: "Nkan" },
+                { id: "SU010248", name: "Nko" },
+                { id: "SU010249", name: "Nkolafendek" },
+                { id: "SU010250", name: "NkolenYeng" },
+                { id: "SU010251", name: "Nyabibete" },
+                { id: "SU010252", name: "Okpweng" },
+                { id: "SU010253", name: "Otong-Mbong" },
+                { id: "SU010254", name: "Yen" },
+                { id: "SU010255", name: "Zamane" }
+              ]
+            },
+            {
+              id: 'SU-01-03',
+              name: 'Meyomessala',
+              villages:[
+                { id: "SU010301", name: "Akok" },
+                { id: "SU010302", name: "Akom-Ndong" },
+                { id: "SU010303", name: "Anvom" },
+                { id: "SU010304", name: "Andom" },
+                { id: "SU010305", name: "Bibas" },
+                { id: "SU010306", name: "Biba-Yezoum" },
+                { id: "SU010307", name: "Biboulemam" },
+                { id: "SU010308", name: "Bidjong" },
+                { id: "SU010309", name: "Bitye" },
+                { id: "SU010310", name: "Ebang" },
+                { id: "SU010311", name: "Ebolakounou" },
+                { id: "SU010312", name: "Efoulan 1" },
+                { id: "SU010313", name: "Efoulan 2" },
+                { id: "SU010314", name: "Edjom" },
+                { id: "SU010315", name: "Ekok" },
+                { id: "SU010316", name: "Ekouk" },
+                { id: "SU010317", name: "Ellé" },
+                { id: "SU010318", name: "Endam-Yembong" },
+                { id: "SU010319", name: "Eton" },
+                { id: "SU010320", name: "Kalle" },
+                { id: "SU010321", name: "Kout" },
+                { id: "SU010322", name: "Kpwe" },
+                { id: "SU010323", name: "Ma'an" },
+                { id: "SU010324", name: "Mbe'elon" },
+                { id: "SU010325", name: "Mebame" },
+                { id: "SU010326", name: "Mekin" },
+                { id: "SU010327", name: "Mekomo" },
+                { id: "SU010328", name: "Messila" },
+                { id: "SU010329", name: "Messok" },
+                { id: "SU010330", name: "Melok" },
+                { id: "SU010331", name: "Memvae" },
+                { id: "SU010332", name: "Mengon" },
+                { id: "SU010333", name: "Meyomakot" },
+                { id: "SU010334", name: "Meyomessala Ville" },
+                { id: "SU010335", name: "Meyos-Yetyang" },
+                { id: "SU010336", name: "Minko" },
+                { id: "SU010337", name: "Mintima" },
+                { id: "SU010338", name: "Mvan-Bisson" },
+                { id: "SU010339", name: "Mvia" },
+                { id: "SU010340", name: "Mvomeka'a" },
+                { id: "SU010341", name: "Ndjikom" },
+                { id: "SU010342", name: "Ndibissong" },
+                { id: "SU010343", name: "Ndou-Libi" },
+                { id: "SU010344", name: "Nkoldja" },
+                { id: "SU010345", name: "Nkae" },
+                { id: "SU010346", name: "Nko" },
+                { id: "SU010347", name: "NkolenYeng" },
+                { id: "SU010348", name: "Nlobesse'e" },
+                { id: "SU010349", name: "Nnemeyong I" },
+                { id: "SU010350", name: "Nnemeyong II" },
+                { id: "SU010351", name: "Nnemeyong III" },
+                { id: "SU010352", name: "Nye'ele" },
+                { id: "SU010353", name: "Onongo" },
+                { id: "SU010354", name: "Samarie" },
+                { id: "SU010355", name: "Tatying I" },
+                { id: "SU010356", name: "Zoumeyo" },
+                { id: "SU010357", name: "Yous" }
+              ]
+            },
+            {
+              id: 'SU-01-04',
+              name: 'Mintom',
+              villages: [
+                  { id: "SU010401", name: "Akom" },
+                  { id: "SU010402", name: "Alati" },
+                  { id: "SU010403", name: "Bi'" },
+                  { id: "SU010404", name: "Bindom" },
+                  { id: "SU010405", name: "Centre Administratif" },
+                  { id: "SU010406", name: "Esseng" },
+                  { id: "SU010407", name: "Koungoulou" },
+                  { id: "SU010408", name: "Lele" },
+                  { id: "SU010409", name: "Mboutoukong" },
+                  { id: "SU010410", name: "Mbong-Ayok" },
+                  { id: "SU010411", name: "Mekom" },
+                  { id: "SU010412", name: "Mekotto" },
+                  { id: "SU010413", name: "Meyiboto" },
+                  { id: "SU010414", name: "Mintom" },
+                  { id: "SU010415", name: "Mintom 1" },
+                  { id: "SU010416", name: "Mintom 2" },
+                  { id: "SU010417", name: "Nja-Et-Lele" },
+                  { id: "SU010418", name: "Nkolmboula" },
+                  { id: "SU010419", name: "Zeh" },
+                  { id: "SU010420", name: "Zoebefam" },
+                  { id: "SU010421", name: "Zo'otou I" },
+                  { id: "SU010422", name: "Zo'otou II" },
+                  { id: "SU010423", name: "Zoulabot" },
+                  { id: "SU010424", name: "Zoulameyong" }
+              ]
+            },
+            {
+              id: 'SU-01-05',
+              name: 'Oveng',
+              villages: [
+                  { id: "SU010501", name: "Abek" },
+                  { id: "SU010502", name: "Aboulou" },
+                  { id: "SU010503", name: "Adjap" },
+                  { id: "SU010504", name: "Akom" },
+                  { id: "SU010505", name: "Andoung" },
+                  { id: "SU010506", name: "Anyoungom" },
+                  { id: "SU010507", name: "Akoabas" },
+                  { id: "SU010508", name: "Bifot" },
+                  { id: "SU010509", name: "Bikougou" },
+                  { id: "SU010510", name: "Bityé" },
+                  { id: "SU010511", name: "Ebomane" },
+                  { id: "SU010512", name: "Ekowong" },
+                  { id: "SU010513", name: "Endone" },
+                  { id: "SU010514", name: "Essamenkou" },
+                  { id: "SU010515", name: "Essam" },
+                  { id: "SU010516", name: "Fang-Sud" },
+                  { id: "SU010517", name: "Medjeng" },
+                  { id: "SU010518", name: "Mebassa" },
+                  { id: "SU010519", name: "Mebang" },
+                  { id: "SU010520", name: "Meko'o" },
+                  { id: "SU010521", name: "Mvam" },
+                  { id: "SU010522", name: "Ngoudjeng" },
+                  { id: "SU010523", name: "Ngwassa" },
+                  { id: "SU010524", name: "Ndja'" },
+                  { id: "SU010525", name: "Nkono" },
+                  { id: "SU010526", name: "Onon" },
+                  { id: "SU010527", name: "Oveng'" },
+                  { id: "SU010528", name: "Oveng-Village" }
+                ]
+            },
+            {
+              id: 'SU-01-06',
+              name: 'Sangmelima',
+              villages: [
+                { id: "SU010601", name: "Afamba-Libi" },
+                { id: "SU010602", name: "Akon I" },
+                { id: "SU010606", name: "Akon II" },
+                { id: "SU010607", name: "Akon III" },
+                { id: "SU010608", name: "Akon X" },
+                { id: "SU010603", name: "Avebe" },
+                { id: "SU010609", name: "Base" },
+                { id: "SU010610", name: "Bissono" },
+                { id: "SU010611", name: "Centre Administratif" },
+                { id: "SU010612", name: "Ebolengbwang" },
+                { id: "SU010627", name: "Efoulan" },
+                { id: "SU010628", name: "Evindissi I" },
+                { id: "SU010629", name: "Evindissi II" },
+                { id: "SU010623", name: "Kamelon" },
+                { id: "SU010630", name: "Kombe" },
+                { id: "SU010631", name: "Kondemeyos" },
+                { id: "SU010613", name: "Lobo-Si" },
+                { id: "SU010632", name: "Melen" },
+                { id: "SU010633", name: "Mendong" },
+                { id: "SU010625", name: "Mepho" },
+                { id: "SU010634", name: "Mepho" },
+                { id: "SU010604", name: "Meyomadjom" },
+                { id: "SU010635", name: "Meyos" },
+                { id: "SU010636", name: "Mfoul-Oveng" },
+                { id: "SU010614", name: "Mbeli'i" },
+                { id: "SU010637", name: "Mimbo" },
+                { id: "SU010615", name: "Monavebe" },
+                { id: "SU010638", name: "Ndjom" },
+                { id: "SU010624", name: "Ndjantom" },
+                { id: "SU010639", name: "Ngam" },
+                { id: "SU010640", name: "Ngon" },
+                { id: "SU010616", name: "Nkolnguet" },
+                { id: "SU010641", name: "Nkout II" },
+                { id: "SU010605", name: "Nkpwang" },
+                { id: "SU010642", name: "Nkpwag" },
+                { id: "SU010643", name: "Nloup" },
+                { id: "SU010617", name: "Nylon" },
+                { id: "SU010626", name: "Nyazanga" },
+                { id: "SU010621", name: "Otoakam" },
+                { id: "SU010644", name: "Nsimale I" },
+                { id: "SU010645", name: "Nsimale II" },
+                { id: "SU010646", name: "Nsimale III" },
+                { id: "SU010647", name: "Oveng-Yemvak" },
+                { id: "SU010618", name: "Quartier Chic" },
+                { id: "SU010649", name: "Sangmelima" },
+                { id: "SU010619", name: "Sangmelima Village" },
+                { id: "SU010620", name: "Sources" },
+                { id: "SU010648", name: "Zoum" }
+              ]
+            },
+            {
+              id: 'SU-01-07',
+              name: 'Zoétélé',
+              villages: [
+                { id: "SU010701", name: "Abangok" },
+                { id: "SU010702", name: "Akoa" },
+                { id: "SU010725", name: "Awout" },
+                { id: "SU010719", name: "Biboulemam" },
+                { id: "SU010726", name: "Bibe" },
+                { id: "SU010709", name: "Enamengal" },
+                { id: "SU010710", name: "Engoutouk" },
+                { id: "SU010727", name: "Etoto" },
+                { id: "SU010712", name: "Mbedoumou" },
+                { id: "SU010728", name: "Mebo" },
+                { id: "SU010729", name: "Menibwa" },
+                { id: "SU010718", name: "Mvog Ella" },
+                { id: "SU010723", name: "Mvog Mezang" },
+                { id: "SU010733", name: "Mvog Zang" },
+                { id: "SU010734", name: "Mvog Zomo" },
+                { id: "SU010713", name: "Ndele" },
+                { id: "SU010707", name: "New Town" },
+                { id: "SU010715", name: "Nkolbang" },
+                { id: "SU010722", name: "Nkolofong" },
+                { id: "SU010716", name: "Nnemeyong" },
+                { id: "SU010708", name: "Esse Rural" },
+                { id: "SU010714", name: "Nkilzok" },
+                { id: "SU010721", name: "Ngomedjap" },
+                { id: "SU010717", name: "Olounou" },
+                { id: "SU010703", name: "Nkolemveng" },
+                { id: "SU010701", name: "Zoétélé" },
+                { id: "SU010731", name: "Zoétélé Village I" },
+                { id: "SU010732", name: "Zoétélé Village II" }
+              ]
+            },
+            {
+              id: 'SU-01-08',
+              name: 'Meyomessi',
+              villages: [
+                { id: 'SU010801', name: 'Abele' },
+                { id: 'SU010802', name: 'Akoabas' },
+                { id: 'SU010803', name: 'Akom-Ndong' },
+                { id: 'SU010804', name: 'Azem' },
+                { id: 'SU010805', name: 'Bikoula' },
+                { id: 'SU010806', name: 'Elom' },
+                { id: 'SU010807', name: 'Emvieng I' },
+                { id: 'SU010808', name: 'Emvieng II' },
+                { id: 'SU010809', name: 'Essang Mvout' },
+                { id: 'SU010810', name: 'Essong-Ndong' },
+                { id: 'SU010811', name: 'Kongo' },
+                { id: 'SU010812', name: 'Melan' },
+                { id: 'SU010813', name: 'Melok' },
+                { id: 'SU010814', name: 'Mbilemvom' },
+                { id: 'SU010815', name: 'Mbiéleme' },
+                { id: 'SU010816', name: 'Messok' },
+                { id: 'SU010817', name: 'Mimbang' },
+                { id: 'SU010818', name: 'Minkang I' },
+                { id: 'SU010819', name: 'Minkang II' },
+                { id: 'SU010820', name: 'Meyos' },
+                { id: 'SU010821', name: 'Meyomessi Ville' },
+                { id: 'SU010822', name: 'Meyomessi Ville' },
+                { id: 'SU010823', name: 'Meyomessi' },
+                { id: 'SU010824', name: 'Ndong' },
+                { id: 'SU010825', name: 'Ndjele' },
+                { id: 'SU010826', name: 'Ngomebae' },
+                { id: 'SU010827', name: 'Oding' },
+                { id: 'SU010828', name: 'Olounou' },
+                { id: 'SU010829', name: 'Yemfek' },
+                { id: 'SU010830', name: 'Yemveng' }
+
+              ]
+            }
+          ]
+        },
+        {
+          id: 'SU-02',
+          name: 'Mvila',
+          arrondissements: [
+            {
+              id: 'SU-02-01',
+              name: 'Biwong-Bane',
+              villages: [
+                { id: 'SU020101', name: 'Akiae' },
+                { id: 'SU020102', name: 'Akak' },
+                { id: 'SU020103', name: 'Adjap-Fong' },
+                { id: 'SU020104', name: 'Adjap Mvog Eda' },
+                { id: 'SU020105', name: 'Adjap-Menyie' },
+                { id: 'SU020106', name: 'Ebong-Ayissi' },
+                { id: 'SU020107', name: 'Ebemewomen' },
+                { id: 'SU020108', name: 'Ebemewomen 1' },
+                { id: 'SU020109', name: 'Engongom' },
+                { id: 'SU020110', name: 'Efoumoulou Nsele' },
+                { id: 'SU020111', name: 'Kama' },
+                { id: 'SU020112', name: 'Melangue I' },
+                { id: 'SU020113', name: 'Melangue II' },
+                { id: 'SU020114', name: 'Melangue-Nord' },
+                { id: 'SU020115', name: 'Melangue-Sud 1' },
+                { id: 'SU020116', name: 'Melangue III' },
+                { id: 'SU020117', name: 'Melangue Sud II' },
+                { id: 'SU020118', name: 'Metet' },
+                { id: 'SU020119', name: 'Minkane' },
+                { id: 'SU020120', name: 'Nkol Amougou' },
+                { id: 'SU020121', name: 'Nkolenkeng' },
+                { id: 'SU020122', name: 'Nkolonyié' },
+                { id: 'SU020123', name: 'Nkolonyie' },
+                { id: 'SU020124', name: 'Nkoémvone' },
+                { id: 'SU020125', name: 'Ngoékélé' },
+                { id: 'SU020126', name: 'Ngoazip I' },
+                { id: 'SU020127', name: 'Ngoazip II' },
+                { id: 'SU020128', name: 'Nyazo’o 2' },
+                { id: 'SU020129', name: 'Nyep-Bane' },
+                { id: 'SU020130', name: 'Obang 1' },
+                { id: 'SU020131', name: 'Ofoumbi' },
+                { id: 'SU020132', name: 'Oveng-Bane' },
+                { id: 'SU020133', name: 'Oveng Fong' },
+                { id: 'SU020134', name: 'Su020135' },
+                { id: 'SU020136', name: 'Yem Mvog Mba' }
+    
+              ]
+            },
+            {
+              id: 'SU-02-02',
+              name: 'Biwong-Bulu',
+              villages: [
+                { id: 'SU020201', name: 'Akak-Yevol' },
+                { id: 'SU020202', name: 'Akpwae' },
+                { id: 'SU020203', name: 'Abiete Yendjok' },
+                { id: 'SU020204', name: 'Akom' },
+                { id: 'SU020205', name: 'Bibi-Yevol' },
+                { id: 'SU020206', name: 'Biba' },
+                { id: 'SU020207', name: 'Biwong-Bulu' },
+                { id: 'SU020208', name: 'Biwong-Bulu Ville' },
+                { id: 'SU020209', name: 'Biboulemam' },
+                { id: 'SU020210', name: 'Enguep-Anyou' },
+                { id: 'SU020211', name: 'Elone' },
+                { id: 'SU020212', name: 'Eminemvom 1' },
+                { id: 'SU020213', name: 'Eminemvom 2' },
+                { id: 'SU020214', name: 'Ebe' },
+                { id: 'SU020215', name: 'Efoulan-Ndong' },
+                { id: 'SU020216', name: 'Essangong' },
+                { id: 'SU020217', name: 'Momebili' },
+                { id: 'SU020218', name: 'Mvong' },
+                { id: 'SU020219', name: 'Mvoula' },
+                { id: 'SU020220', name: 'Minkpwéle' },
+                { id: 'SU020221', name: 'Melane' },
+                { id: 'SU020222', name: 'Melangue' },
+                { id: 'SU020223', name: 'Mamenyie' },
+                { id: 'SU020224', name: 'Mang' },
+                { id: 'SU020225', name: 'Mendoum' },
+                { id: 'SU020226', name: 'Messambe-Ndong' },
+                { id: 'SU020227', name: 'Metyikpwale-Ngoé' },
+                { id: 'SU020228', name: 'Nkpwaebaé' },
+                { id: 'SU020229', name: 'Ondondo' },
+                { id: 'SU020230', name: 'Ongol' },
+                { id: 'SU020231', name: 'Sonkoe' },
+                { id: 'SU020232', name: 'Obem' },
+                { id: 'SU020233', name: 'Mbilbekon' },
+                { id: 'SU020234', name: 'Okpweng' },
+                { id: 'SU020235', name: 'Zoébefam' },
+                { id: 'SU020236', name: 'Zouameyong' },
+                { id: 'SU020237', name: 'Nkolenyeng' },
+                { id: 'SU020238', name: 'Nkolbityé' },
+                { id: 'SU020239', name: 'Nkolobane' },
+                { id: 'SU020240', name: 'Nkone' },
+                { id: 'SU020241', name: 'Nkong-Yebae' },
+                { id: 'SU020242', name: 'Nkongmedzap 1' },
+                { id: 'SU020243', name: 'Nkongmedzap 2' },
+                { id: 'SU020244', name: 'Nkong-Edjom' },
+                { id: 'SU020245', name: 'Nkoetye' },
+                { id: 'SU020246', name: 'Ngone' },
+                { id: 'SU020247', name: 'Ngomeden' },
+                { id: 'SU020248', name: 'Minkpwéle' },
+                { id: 'SU020249', name: 'Momebili' },
+                
+              ]
+            },
+            {
+              id: 'SU-02-03',
+              name: 'Ebolowa I',
+              villages: [
+                { id: 'SU020301', name: 'Akok' },
+                { id: 'SU020302', name: 'Ako\'Okas' },
+                { id: 'SU020303', name: 'Abang' },
+                { id: 'SU020304', name: 'Abomvomba' },
+                { id: 'SU020305', name: 'About' },
+                { id: 'SU020306', name: 'Amang 1' },
+                { id: 'SU020307', name: 'Amang 2' },
+                { id: 'SU020308', name: 'Amang 4' },
+                { id: 'SU020309', name: 'Amang 5' },
+                { id: 'SU020310', name: 'Amang 6' },
+                { id: 'SU020311', name: 'Angalé' },
+                { id: 'SU020312', name: 'Alen' },
+                { id: 'SU020313', name: 'Aloum 1' },
+                { id: 'SU020314', name: 'Aloum 2' },
+                { id: 'SU020315', name: 'Akom' },
+                { id: 'SU020316', name: 'Assok' },
+                { id: 'SU020317', name: 'Asso\'Osseng' },
+                { id: 'SU020318', name: 'Avelezok' },
+                { id: 'SU020319', name: 'Afanengong Yessok' },
+                { id: 'SU020320', name: 'Adjap 1' },
+                { id: 'SU020321', name: 'Adjap 2' },
+                { id: 'SU020322', name: 'BiyeYem' },
+                { id: 'SU020323', name: 'Biba 1' },
+                { id: 'SU020324', name: 'Biba 2' },
+                { id: 'SU020325', name: 'Bilon' },
+                { id: 'SU020326', name: 'Bissam' },
+                { id: 'SU020327', name: 'Bissok' },
+                { id: 'SU020328', name: 'Bityili 1' },
+                { id: 'SU020329', name: 'Bityili 2' },
+                { id: 'SU020330', name: 'Bityili 3' },
+                { id: 'SU020331', name: 'Bulu-Sud' },
+                { id: 'SU020332', name: 'Bikpwaé' },
+                { id: 'SU020333', name: 'Bikpwae' },
+                { id: 'SU020334', name: 'Ebae' },
+                { id: 'SU020335', name: 'Ebolakoun' },
+                { id: 'SU020336', name: 'Ebolowa I' },
+                { id: 'SU020337', name: 'Ekombité' },
+                { id: 'SU020338', name: 'Ekowong' },
+                { id: 'SU020339', name: 'Ekoumdoum' },
+                { id: 'SU020340', name: 'Elat' },
+                { id: 'SU020341', name: 'Elone' },
+                { id: 'SU020342', name: 'Enongal-Bulu' },
+                { id: 'SU020343', name: 'Eyek' },
+                { id: 'SU020344', name: 'Evindissi' },
+                { id: 'SU020345', name: 'Mbako\'O' },
+                { id: 'SU020346', name: 'Mbout' },
+                { id: 'SU020347', name: 'Mbilbekon' },
+                { id: 'SU020348', name: 'Mbilntangan' },
+                { id: 'SU020349', name: 'Mekalat-Biyeng' },
+                { id: 'SU020350', name: 'Mekalat-Yemveng' },
+                { id: 'SU020351', name: 'Mekalat-Yevol' },
+                { id: 'SU020352', name: 'Mekomo' },
+                { id: 'SU020353', name: 'Mekok 1' },
+                { id: 'SU020354', name: 'Mekok 2' },
+                { id: 'SU020355', name: 'Metykpwale-Yeminsem' },
+                { id: 'SU020356', name: 'Meyos' },
+                { id: 'SU020357', name: 'Meyos' },
+                { id: 'SU020358', name: 'Minkok' },
+                { id: 'SU020359', name: 'Minkok' },
+                { id: 'SU020360', name: 'Mvam-Yetom' },
+                { id: 'SU020361', name: 'Mvii-Nord 1' },
+                { id: 'SU020362', name: 'Mefo' },
+                { id: 'SU020363', name: 'Mfinda' },
+                { id: 'SU020364', name: 'Ma\'Amezam' },
+                { id: 'SU020365', name: 'Ndjafop' },
+                { id: 'SU020366', name: 'Ngalane III' },
+                { id: 'SU020367', name: 'Nko\'Adjap1' },
+                { id: 'SU020368', name: 'Nko\'Adjap 2' },
+                { id: 'SU020369', name: 'Nko\'Emvone' },
+                { id: 'SU020370', name: 'Nko\'ovos I' },
+                { id: 'SU020371', name: 'Nko\'ovos 2' },
+                { id: 'SU020372', name: 'Nkolandom' },
+                { id: 'SU020373', name: 'Nkolenyeng-Yemvang' },
+                { id: 'SU020374', name: 'Nkolmvone' },
+                { id: 'SU020375', name: 'Nkoloveng' },
+                { id: 'SU020376', name: 'Nkondongo' },
+                { id: 'SU020377', name: 'Nkpwaebae' },
+                { id: 'SU020378', name: 'Nloupessa Yemong' },
+                { id: 'SU020379', name: 'Nnelefooup' },
+                { id: 'SU020380', name: 'Ngone' },
+                { id: 'SU020381', name: 'Okpweng' },
+                { id: 'SU020382', name: 'Onoyong' },
+                { id: 'SU020383', name: 'Sijakon' },
+                { id: 'SU020384', name: 'Vema' }
+                
+            
+              ]
+            },
+            {
+              id: 'SU-02-04',
+              name: 'Ebolowa II',
+              villages: [
+                { id: 'SU020401', name: 'Abang' },
+                { id: 'SU020402', name: 'Abomvomba' },
+                { id: 'SU020403', name: 'About' },
+                { id: 'SU020404', name: 'Afanengong Yessok' },
+                { id: 'SU020405', name: 'Akok' },
+                { id: 'SU020406', name: 'Ako\'Okas' },
+                { id: 'SU020407', name: 'Alen' },
+                { id: 'SU020408', name: 'Aloum 1' },
+                { id: 'SU020409', name: 'Aloum 2' },
+                { id: 'SU020410', name: 'Amang 1' },
+                { id: 'SU020411', name: 'Amang 2' },
+                { id: 'SU020412', name: 'Amang 4' },
+                { id: 'SU020413', name: 'Amang 5' },
+                { id: 'SU020414', name: 'Amang 6' },
+                { id: 'SU020415', name: 'Angalé' },
+                { id: 'SU020416', name: 'Assok' },
+                { id: 'SU020417', name: 'Asso\'Osseng' },
+                { id: 'SU020418', name: 'Avelezok' },
+                { id: 'SU020419', name: 'Adjap 1' },
+                { id: 'SU020420', name: 'Adjap 2' },
+                { id: 'SU020421', name: 'BiyeYem' },
+                { id: 'SU020422', name: 'Biba 1' },
+                { id: 'SU020423', name: 'Biba 2' },
+                { id: 'SU020424', name: 'Bilon' },
+                { id: 'SU020425', name: 'Bissam' },
+                { id: 'SU020426', name: 'Bissok' },
+                { id: 'SU020427', name: 'Bityili 1' },
+                { id: 'SU020428', name: 'Bityili 2' },
+                { id: 'SU020429', name: 'Bityili 3' },
+                { id: 'SU020430', name: 'Biton' },
+                { id: 'SU020431', name: 'Bous' },
+                { id: 'SU020432', name: 'Bulu-Sud' },
+                { id: 'SU020433', name: 'Bikpwaé' },
+                { id: 'SU020434', name: 'Bikpwae' },
+                { id: 'SU020435', name: 'Djop' },
+                { id: 'SU020436', name: 'Ebae' },
+                { id: 'SU020437', name: 'Ebomam 1' },
+                { id: 'SU020438', name: 'Ebomam 2' },
+                { id: 'SU020439', name: 'Ebolakoun' },
+                { id: 'SU020440', name: 'Ebolowa I' },
+                { id: 'SU020441', name: 'Ekombité' },
+                { id: 'SU020442', name: 'Ekowong' },
+                { id: 'SU020443', name: 'Ekoumdoum' },
+                { id: 'SU020444', name: 'Elat' },
+                { id: 'SU020445', name: 'Elone' },
+                { id: 'SU020446', name: 'Enguep-Anyou' },
+                { id: 'SU020447', name: 'Enongal-Bulu' },
+                { id: 'SU020449', name: 'Eyek' },
+                { id: 'SU020450', name: 'Evindissi' },
+                { id: 'SU020451', name: 'Essinguili' },
+                { id: 'SU020452', name: 'Foulassi' },
+                { id: 'SU020453', name: 'Foulassi 2' },
+                { id: 'SU020454', name: 'Mbako\'O' },
+                { id: 'SU020455', name: 'Mbout' },
+                { id: 'SU020456', name: 'Mbilbekon' },
+                { id: 'SU020457', name: 'Mbilntangan' },
+                { id: 'SU020458', name: 'Mekalat-Biyeng' },
+                { id: 'SU020459', name: 'Mekalat-Yemveng' },
+                { id: 'SU020460', name: 'Mekalat-Yevol' },
+                { id: 'SU020461', name: 'Mekomo' },
+                { id: 'SU020462', name: 'Mekok 1' },
+                { id: 'SU020463', name: 'Mekok 2' },
+                { id: 'SU020464', name: 'Metykpwale-Yeminsem' },
+                { id: 'SU020465', name: 'Meyos' },
+                { id: 'SU020467', name: 'Minkok' },
+                { id: 'SU020469', name: 'Minto' },
+                { id: 'SU020470', name: 'Mvam-Yetom' },
+                { id: 'SU020471', name: 'Mvam-Essakoe' },
+                { id: 'SU020472', name: 'Mvoman' },
+                { id: 'SU020473', name: 'Mvii-Nord 1' },
+                { id: 'SU020474', name: 'Mefo' },
+                { id: 'SU020475', name: 'Mfinda' },
+                { id: 'SU020476', name: 'Ma\'Amezam' },
+                { id: 'SU020477', name: 'Mevous' },
+                { id: 'SU020478', name: 'Ndjafop' },
+                { id: 'SU020479', name: 'Ngalane III' },
+                { id: 'SU020480', name: 'Nko\'Adjap1' },
+                { id: 'SU020481', name: 'Nko\'Adjap 2' },
+                { id: 'SU020482', name: 'Nko\'Emvone' },
+                { id: 'SU020483', name: 'Nko\'ovos I' },
+                { id: 'SU020484', name: 'Nko\'ovos 2' },
+                { id: 'SU020485', name: 'Nkolandom' },
+                { id: 'SU020486', name: 'Nkolenyeng-Yemvang' },
+                { id: 'SU020487', name: 'Nkolmvone' },
+                { id: 'SU020488', name: 'Nkoloveng' },
+                { id: 'SU020489', name: 'Nkondongo' },
+                { id: 'SU020490', name: 'Nkpwaebae' },
+                { id: 'SU020491', name: 'Nkon' },
+                { id: 'SU020492', name: 'Nloupessa Yemong' },
+                { id: 'SU020493', name: 'Nnelefooup' },
+                { id: 'SU020494', name: 'Ngone' },
+                { id: 'SU020495', name: 'Ndengue' },
+                { id: 'SU020496', name: 'Ngoto 2' },
+                { id: 'SU020497', name: 'Okpweng' },
+                { id: 'SU020498', name: 'Onoyong' },
+                { id: 'SU020499', name: 'Sijakon' },
+                { id: 'SU0204100', name: 'Vema' }
+            ]
+            },
+            {
+              id: 'SU-02-05',
+              name: 'Efoulan',
+              villages: [
+                  { id: 'SU020501', name: 'Akom Yévol' },
+                  { id: 'SU020502', name: 'Abo\'O Ntomba' },
+                  { id: 'SU020503', name: 'Angbwek' },
+                  { id: 'SU020504', name: 'Aloum-Yemveng' },
+                  { id: 'SU020505', name: 'Efoulan' },
+                  { id: 'SU020506', name: 'Efoulane' },
+                  { id: 'SU020507', name: 'Elone' },
+                  { id: 'SU020508', name: 'Bikouba' },
+                  { id: 'SU020509', name: 'Bongolo' },
+                  { id: 'SU020510', name: 'Binyina' },
+                  { id: 'SU020511', name: 'Ebom-Essawo' },
+                  { id: 'SU020512', name: 'Mebem' },
+                  { id: 'SU020513', name: 'Mebandé' },
+                  { id: 'SU020514', name: 'Melangue Biyeng' },
+                  { id: 'SU020515', name: 'Melane' },
+                  { id: 'SU020516', name: 'Mimbomingeal' },
+                  { id: 'SU020517', name: 'Mintom' },
+                  { id: 'SU020518', name: 'Minkane' },
+                  { id: 'SU020519', name: 'Mekalat' },
+                  { id: 'SU020520', name: 'Mekoto-Jaman 1' },
+                  { id: 'SU020521', name: 'Mekoto-Jaman 2' },
+                  { id: 'SU020522', name: 'Mekoto-Jaman 3' },
+                  { id: 'SU020523', name: 'Mekok' },
+                  { id: 'SU020524', name: 'Nyazo\'O' },
+                  { id: 'SU020525', name: 'Ngat' },
+                  { id: 'SU020526', name: 'Ngonebok' },
+                  { id: 'SU020527', name: 'Ngonebok Abo\'O Ntomba' },
+                  { id: 'SU020528', name: 'Nko\'Adjap' },
+                  { id: 'SU020529', name: 'Nko\'Ekouk' },
+                  { id: 'SU020530', name: 'Ngalane II' },
+                  { id: 'SU020531', name: 'Tchangue' },
+                  { id: 'SU020532', name: 'Adjap-Essawo' },
+                  { id: 'SU020533', name: 'Kalate-Aba\'A' },
+                  { id: 'SU020534', name: 'Mekalat-Essawo' },
+                  { id: 'SU020535', name: 'Mengalé' },
+                  { id: 'SU020536', name: 'Koungoulou-Essawo' },
+                  { id: 'SU020537', name: 'Koungoulou-Essawo' }
+
+              ]
+            },
+            {
+              id: 'SU-02-06',
+              name: 'Mengong',
+              villages: [
+                  { id: 'SU020601', name: 'Aba Bita' },
+                  { id: 'SU020602', name: 'Abiete' },
+                  { id: 'SU020603', name: 'Adjap-Yévol' },
+                  { id: 'SU020604', name: 'Atoui' },
+                  { id: 'SU020605', name: 'Ato\'oveng I' },
+                  { id: 'SU020606', name: 'Ato\'oveng II' },
+                  { id: 'SU020607', name: 'Ban-Hop' },
+                  { id: 'SU020608', name: 'Bulu Nord' },
+                  { id: 'SU020609', name: 'Doungou' },
+                  { id: 'SU020610', name: 'Doum' },
+                  { id: 'SU020611', name: 'Ebap' },
+                  { id: 'SU020612', name: 'Ebolobola' },
+                  { id: 'SU020613', name: 'Efot' },
+                  { id: 'SU020614', name: 'Ekouk' },
+                  { id: 'SU020615', name: 'Emanemvam' },
+                  { id: 'SU020616', name: 'Endam I' },
+                  { id: 'SU020617', name: 'Endam II' },
+                  { id: 'SU020618', name: 'Enyieng' },
+                  { id: 'SU020619', name: 'Essessana' },
+                  { id: 'SU020620', name: 'Esso\'o Bengah' },
+                  { id: 'SU020621', name: 'Etondo' },
+                  { id: 'SU020622', name: 'Ke\'eke' },
+                  { id: 'SU020623', name: 'Koungoulou' },
+                  { id: 'SU020624', name: 'Loum' },
+                  { id: 'SU020625', name: 'Ma\'an Menyine' },
+                  { id: 'SU020626', name: 'Mboabang I' },
+                  { id: 'SU020627', name: 'Mboabang II' },
+                  { id: 'SU020628', name: 'Mefiep' },
+                  { id: 'SU020629', name: 'Mengong' },
+                  { id: 'SU020630', name: 'Mengong Ville' },
+                  { id: 'SU020631', name: 'Mekamevom' },
+                  { id: 'SU020632', name: 'Mekomo' },
+                  { id: 'SU020633', name: 'Mvangue' },
+                  { id: 'SU020634', name: 'MVII' },
+                  { id: 'SU020635', name: 'MVII Nord' },
+                  { id: 'SU020636', name: 'MVII Nord II' },
+                  { id: 'SU020637', name: 'MVII Sud' },
+                  { id: 'SU020638', name: 'Ndeng' },
+                  { id: 'SU020639', name: 'Nguet-Yembong' },
+                  { id: 'SU020640', name: 'Ngoulessaman' },
+                  { id: 'SU020641', name: 'Ngomessane I' },
+                  { id: 'SU020642', name: 'Ngomessane II' },
+                  { id: 'SU020643', name: 'Nkane' },
+                  { id: 'SU020644', name: 'Nkolbengue' },
+                  { id: 'SU020645', name: 'Nkoléteto' },
+                  { id: 'SU020646', name: 'Nkolowon' },
+                  { id: 'SU020647', name: 'Nkolemveng' },
+                  { id: 'SU020648', name: 'Nko\'ovos II' },
+                  { id: 'SU020649', name: 'Nnemeyong I' },
+                  { id: 'SU020650', name: 'Nnemeyong II' },
+                  { id: 'SU020651', name: 'Nnemeyong III' },
+                  { id: 'SU020652', name: 'Ondondo' },
+                  { id: 'SU020653', name: 'Yem' }
+              ]
+            },
+            {
+              id: 'SU-02-07',
+              name: 'Mvangan',
+              villages: [
+                  { id: 'SU020701', name: 'Ababedomam' },
+                  { id: 'SU020702', name: 'Aboelone' },
+                  { id: 'SU020703', name: 'Aboumezok' },
+                  { id: 'SU020704', name: 'Adjap' },
+                  { id: 'SU020705', name: 'Afan' },
+                  { id: 'SU020706', name: 'Akam' },
+                  { id: 'SU020707', name: 'Ako\'obete' },
+                  { id: 'SU020708', name: 'Ako\'obete' },
+                  { id: 'SU020709', name: 'Alen' },
+                  { id: 'SU020710', name: 'Alen-Essaela\'an' },
+                  { id: 'SU020711', name: 'Alen-Yemekak' },
+                  { id: 'SU020712', name: 'Alombo' },
+                  { id: 'SU020713', name: 'Alotom' },
+                  { id: 'SU020714', name: 'Amvom' },
+                  { id: 'SU020715', name: 'Andjeck' },
+                  { id: 'SU020716', name: 'Assok I' },
+                  { id: 'SU020717', name: 'Assok II' },
+                  { id: 'SU020718', name: 'Atong' },
+                  { id: 'SU020719', name: 'Biboulman' },
+                  { id: 'SU020720', name: 'Bikong' },
+                  { id: 'SU020721', name: 'Bulu Fang Sud' },
+                  { id: 'SU020722', name: 'Bulu Est' },
+                  { id: 'SU020723', name: 'Eboman I' },
+                  { id: 'SU020724', name: 'Eboman II' },
+                  { id: 'SU020725', name: 'Endameyos' },
+                  { id: 'SU020726', name: 'Endengue' },
+                  { id: 'SU020727', name: 'Ekowong I' },
+                  { id: 'SU020728', name: 'Ekowong II' },
+                  { id: 'SU020729', name: 'Essam' },
+                  { id: 'SU020730', name: 'Etoubetoubandi' },
+                  { id: 'SU020731', name: 'Koungoulou' },
+                  { id: 'SU020732', name: 'Mbong' },
+                  { id: 'SU020733', name: 'Mebo\'o Ngoe' },
+                  { id: 'SU020734', name: 'Mebo\'o Yengap' },
+                  { id: 'SU020735', name: 'Mebemenko' },
+                  { id: 'SU020736', name: 'Mebosso' },
+                  { id: 'SU020737', name: 'Mengame I' },
+                  { id: 'SU020738', name: 'Mengame II' },
+                  { id: 'SU020739', name: 'Minkoumou' },
+                  { id: 'SU020740', name: 'Mintyene I' },
+                  { id: 'SU020741', name: 'Mintyene II' },
+                  { id: 'SU020742', name: 'Mvangan' },
+                  { id: 'SU020743', name: 'Mvangan Ville' },
+                  { id: 'SU020744', name: 'Mvaezo' },
+                  { id: 'SU020745', name: 'Ndanga' },
+                  { id: 'SU020746', name: 'Ndick' },
+                  { id: 'SU020747', name: 'Ngomebae' },
+                  { id: 'SU020748', name: 'Nkengou' },
+                  { id: 'SU020749', name: 'Nkolenyeng I' },
+                  { id: 'SU020750', name: 'Nkolenyeng I' },
+                  { id: 'SU020751', name: 'Nkollenyeng II' },
+                  { id: 'SU020752', name: 'Nkomo' },
+                  { id: 'SU020753', name: 'Nnelefoup' },
+                  { id: 'SU020754', name: 'Nnezam' },
+                  { id: 'SU020755', name: 'Nselang' },
+                  { id: 'SU020756', name: 'Oyem I' },
+                  { id: 'SU020757', name: 'Oyem II' },
+                  { id: 'SU020758', name: 'Zangmeyong' },
+                  { id: 'SU020759', name: 'Zoebefam' }
+              ]
+              
+            },
+            {
+              id: 'SU-02-08',
+              name: 'Ngoulemakong',
+              villages: [
+                  { id: 'SU020801', name: 'Abiéte' },
+                  { id: 'SU020802', name: 'Akoa\'Atala' },
+                  { id: 'SU020803', name: 'Alom' },
+                  { id: 'SU020804', name: 'Assam' },
+                  { id: 'SU020805', name: 'Bane Centre' },
+                  { id: 'SU020806', name: 'Bane Ouest' },
+                  { id: 'SU020807', name: 'Banga' },
+                  { id: 'SU020808', name: 'Bikop' },
+                  { id: 'SU020809', name: 'Binyina' },
+                  { id: 'SU020810', name: 'Binyinyali' },
+                  { id: 'SU020811', name: 'Bityo\'Omam' },
+                  { id: 'SU020812', name: 'Doumou-Ola' },
+                  { id: 'SU020813', name: 'Doum Carrefour' },
+                  { id: 'SU020814', name: 'Doum Chefferie' },
+                  { id: 'SU020815', name: 'Ekowondo' },
+                  { id: 'SU020816', name: 'Ekombitie' },
+                  { id: 'SU020817', name: 'Ebolboum' },
+                  { id: 'SU020818', name: 'Ebote Nkoul' },
+                  { id: 'SU020819', name: 'Ebae' },
+                  { id: 'SU020820', name: 'Ebae' },
+                  { id: 'SU020821', name: 'Enamgal I' },
+                  { id: 'SU020822', name: 'Enamgal II' },
+                  { id: 'SU020823', name: 'Essingang' },
+                  { id: 'SU020824', name: 'Fone' },
+                  { id: 'SU020825', name: 'Fong' },
+                  { id: 'SU020826', name: 'Kouma' },
+                  { id: 'SU020827', name: 'Mbeka\'a 1' },
+                  { id: 'SU020828', name: 'Mbeka\'a 2' },
+                  { id: 'SU020829', name: 'Mbeng' },
+                  { id: 'SU020830', name: 'Mbama' },
+                  { id: 'SU020831', name: 'Mekom' },
+                  { id: 'SU020832', name: 'Mengbwa' },
+                  { id: 'SU020833', name: 'Messok 1' },
+                  { id: 'SU020834', name: 'Messok 2' },
+                  { id: 'SU020835', name: 'Minkok' },
+                  { id: 'SU020836', name: 'Minkongo (Mengong-Yat)' },
+                  { id: 'SU020837', name: 'Minlamizibi' },
+                  { id: 'SU020838', name: 'Mva\'a Medjap-Fong' },
+                  { id: 'SU020839', name: 'Mva\'a Medjap-Bane' },
+                  { id: 'SU020840', name: 'Mvoutesi' },
+                  { id: 'SU020841', name: 'Ndzafom' },
+                  { id: 'SU020842', name: 'Ngock' },
+                  { id: 'SU020843', name: 'Ngoulemakong' },
+                  { id: 'SU020844', name: 'Ngoulemakong Ville' },
+                  { id: 'SU020845', name: 'Nkoumadjap 1' },
+                  { id: 'SU020846', name: 'Nlang-Yop' },
+                  { id: 'SU020847', name: 'Nnemeyong' },
+                  { id: 'SU020848', name: 'Nnanga-Ezan' },
+                  { id: 'SU020849', name: 'Nkol' },
+                  { id: 'SU020850', name: 'Nkol-Messas' },
+                  { id: 'SU020851', name: 'Nkol-Yop' },
+                  { id: 'SU020852', name: 'Ntoumba' },
+                  { id: 'SU020853', name: 'Nyamvende' },
+                  { id: 'SU020854', name: 'Obang II' },
+                  { id: 'SU020855', name: 'Ongongo' },
+                  { id: 'SU020856', name: 'Ossofeme' },
+                  { id: 'SU020857', name: 'Oveng Otoloa' },
+                  { id: 'SU020858', name: 'Omang-Si' },
+                  { id: 'SU020859', name: 'Oyak' },
+                  { id: 'SU020860', name: 'Oyak-Fong' },
+                  { id: 'SU020861', name: 'Soumou' },
+                  { id: 'SU020862', name: 'Yop' }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'SU-03',
+          name: 'Ocean',
+          arrondissements: [
+            {
+              id: 'SU-03-01',
+              name: 'Akom II',
+              villages: [
+                  { id: 'SU030101', name: 'Abiete' },
+                  { id: 'SU030102', name: 'Akok' },
+                  { id: 'SU030103', name: 'Akom II' },
+                  { id: 'SU030104', name: 'Akom II Village' },
+                  { id: 'SU030105', name: 'Akom II Ville' },
+                  { id: 'SU030106', name: 'Assok 1' },
+                  { id: 'SU030107', name: 'Bibindi' },
+                  { id: 'SU030108', name: 'Bibole' },
+                  { id: 'SU030109', name: 'Biboulemam' },
+                  { id: 'SU030110', name: 'Bipindi' },
+                  { id: 'SU030111', name: 'Bulu Centre' },
+                  { id: 'SU030112', name: 'Bulu Nord' },
+                  { id: 'SU030113', name: 'Ebemvok' },
+                  { id: 'SU030114', name: 'Efoulan' },
+                  { id: 'SU030115', name: 'Efoulan I' },
+                  { id: 'SU030116', name: 'Efoulan II' },
+                  { id: 'SU030117', name: 'Ekowong' },
+                  { id: 'SU030118', name: 'Elon' },
+                  { id: 'SU030119', name: 'Fenda' },
+                  { id: 'SU030120', name: 'Malomba' },
+                  { id: 'SU030121', name: 'Mbanga' },
+                  { id: 'SU030122', name: 'Mvie' },
+                  { id: 'SU030123', name: 'Ndageng' },
+                  { id: 'SU030124', name: 'Ndjabilobe' },
+                  { id: 'SU030125', name: 'Nlonkeng' },
+                  { id: 'SU030126', name: 'Nlomoto' },
+                  { id: 'SU030127', name: 'Nkong-Mekak' },
+                  { id: 'SU030128', name: 'Nko\'o Ngop' },
+                  { id: 'SU030129', name: 'Nnemeyong' },
+                  { id: 'SU030130', name: 'Nyabitande' },
+                  { id: 'SU030131', name: 'Toko' },
+                  { id: 'SU030132', name: 'Tyengue' }
+              ]
+            },
+            {
+              id: 'SU-03-02',
+              name: 'Niete',
+              villages: [
+                  { id: 'SU030201', name: 'Adjap' },
+                  { id: 'SU030202', name: 'Afan Oveng' },
+                  { id: 'SU030203', name: 'Akom 1' },
+                  { id: 'SU030204', name: 'Bifa' },
+                  { id: 'SU030205', name: 'Bidou III' },
+                  { id: 'SU030206', name: 'Bidou 3' },
+                  { id: 'SU030207', name: 'Bulu-Sud' },
+                  { id: 'SU030208', name: 'Hévécam' },
+                  { id: 'SU030209', name: 'Ngog' },
+                  { id: 'SU030210', name: 'Niete' },
+                  { id: 'SU030211', name: 'Niete Ville' },
+                  { id: 'SU030212', name: 'Nkolembonda' },
+                  { id: 'SU030213', name: 'Nko\'olong' },
+                  { id: 'SU030214', name: 'Nlozok' },
+                  { id: 'SU030215', name: 'Village 1' },
+                  { id: 'SU030216', name: 'Village 2' },
+                  { id: 'SU030217', name: 'Village 3' },
+                  { id: 'SU030218', name: 'Village 4' },
+                  { id: 'SU030219', name: 'Village 5' },
+                  { id: 'SU030220', name: 'Village 6' },
+                  { id: 'SU030221', name: 'Village 7 Est' },
+                  { id: 'SU030222', name: 'Village 7 Ouest' },
+                  { id: 'SU030223', name: 'Village 8' },
+                  { id: 'SU030224', name: 'Village 9' },
+                  { id: 'SU030225', name: 'Village 10' },
+                  { id: 'SU030226', name: 'Village 11' },
+                  { id: 'SU030227', name: 'Village 12' },
+                  { id: 'SU030228', name: 'Village 13' },
+                  { id: 'SU030229', name: 'Village 14' },
+                  { id: 'SU030230', name: 'Village 15' },
+                  { id: 'SU030231', name: 'Village 16' },
+                  { id: 'SU030232', name: 'Village Hôpital' },
+                  { id: 'SU030233', name: 'Zingui' }
+              ]
+            },
+            {
+              id: 'SU-03-03',
+              name: 'Bipindi',
+              villages: [
+                { id: 'SU030301', name: 'Assok' },
+                { id: 'SU030302', name: 'Atog-Boga' },
+                { id: 'SU030303', name: 'Bassa' },
+                { id: 'SU030304', name: 'Bidjouka' },
+                { id: 'SU030305', name: 'Bidjouka' },
+                { id: 'SU030306', name: 'Bifoum' },
+                { id: 'SU030307', name: 'Bipindi' },
+                { id: 'SU030308', name: 'Bipindi-Centre' },
+                { id: 'SU030309', name: 'Bipindi Ville' },
+                { id: 'SU030310', name: 'Bipindi-Village' },
+                { id: 'SU030311', name: 'Bongouana' },
+                { id: 'SU030312', name: 'Ebimimbang' },
+                { id: 'SU030313', name: 'Evouzok' },
+                { id: 'SU030314', name: 'Grand-Zambi' },
+                { id: 'SU030315', name: 'Kouambo' },
+                { id: 'SU030316', name: 'Kpwa Nkoutou' },
+                { id: 'SU030317', name: 'Lambi' },
+                { id: 'SU030318', name: 'Lambi' },
+                { id: 'SU030319', name: 'Madagascar' },
+                { id: 'SU030320', name: 'Madoungou' },
+                { id: 'SU030321', name: 'Melen' },
+                { id: 'SU030322', name: 'Melondo' },
+                { id: 'SU030323', name: 'Melombo' },
+                { id: 'SU030324', name: 'Memel I' },
+                { id: 'SU030325', name: 'Memel II' },
+                { id: 'SU030326', name: 'Mimfombo' },
+                { id: 'SU030327', name: 'Mimbamela' },
+                { id: 'SU030328', name: 'Moungue' },
+                { id: 'SU030329', name: 'Mvondo' },
+                { id: 'SU030330', name: 'Ndtoua' },
+                { id: 'SU030331', name: 'Ngoumba Sud' },
+                { id: 'SU030332', name: 'Ngoumba-Fang' },
+                { id: 'SU030333', name: 'Nsola' },
+                { id: 'SU030334', name: 'Nyaminkom' },
+                { id: 'SU030335', name: 'Petit-Zambi' },
+                { id: 'SU030336', name: 'Song Mahi' },
+                { id: 'SU030337', name: 'Tyango' },
+                { id: 'SU030338', name: 'Villages Autonomes' }
+            ]
+            },
+            {
+              id: 'SU-03-04',
+              name: 'Campo',
+              villages: [
+                { id: 'SU030401', name: 'Afan' },
+                { id: 'SU030402', name: 'Akak' },
+                { id: 'SU030403', name: 'Assok' },
+                { id: 'SU030404', name: 'Bekombe' },
+                { id: 'SU030429', name: 'Bouandjo' },
+                { id: 'SU030401', name: 'Campo' },
+                { id: 'SU030412', name: 'Campo-Beach' },
+                { id: 'SU030404', name: 'Campo Ville' },
+                { id: 'SU030406', name: 'Centre-Ville' },
+                { id: 'SU030407', name: 'Château' },
+                { id: 'SU030408', name: 'Doum-Assi' },
+                { id: 'SU030417', name: 'Doum-Essambenga' },
+                { id: 'SU030418', name: 'Doum-Essamendjang' },
+                { id: 'SU030430', name: 'Ebodje' },
+                { id: 'SU030419', name: 'Ebianemeyong' },
+                { id: 'SU030402', name: 'Ipono' },
+                { id: 'SU030420', name: 'Ipono' },
+                { id: 'SU030421', name: 'Itonde-Fang' },
+                { id: 'SU030431', name: 'Itonde Yassa' },
+                { id: 'SU030422', name: 'MabioGo' },
+                { id: 'SU030427', name: 'Malaba' },
+                { id: 'SU030432', name: 'Mbendji' },
+                { id: 'SU030423', name: 'Mintom' },
+                { id: 'SU030409', name: 'Mintom-Ville' },
+                { id: 'SU030413', name: 'Mvae' },
+                { id: 'SU030403', name: 'Nazareth' },
+                { id: 'SU030424', name: 'Nazareth' },
+                { id: 'SU030425', name: 'Nkoadjap' },
+                { id: 'SU030426', name: 'Nkoelon' },
+                { id: 'SU030410', name: 'Paris-Soir' },
+                { id: 'SU030411', name: 'Tondé Fom' },
+                { id: 'SU030428', name: 'Yassa' }
+              ]
+            },
+            {
+              id: 'SU-03-05',
+              name: 'Kribi I',
+              villages: [
+                { id: 'SU030501', name: 'Batanga Sud' },
+                { id: 'SU030502', name: 'Bongahele' },
+                { id: 'SU030503', name: 'Bongandoue' },
+                { id: 'SU030504', name: 'Bwambe' },
+                { id: 'SU030527', name: 'Elabe' },
+                { id: 'SU030506', name: 'Eboundja I' },
+                { id: 'SU030507', name: 'Eboundja II' },
+                { id: 'SU030508', name: 'Ebome' },
+                { id: 'SU030528', name: 'Grand Batanga' },
+                { id: 'SU030510', name: 'Kribi I' },
+                { id: 'SU030509', name: 'Kribi Ville' },
+                { id: 'SU030530', name: 'Kribi Ville' },
+                { id: 'SU030529', name: 'Kribi II' },
+                { id: 'SU030511', name: 'Lende Dibe' },
+                { id: 'SU030512', name: 'Lende Aviation' },
+                { id: 'SU030513', name: 'Lobe' },
+                { id: 'SU030514', name: 'Lolabe' },
+                { id: 'SU030531', name: 'Lolabe' },
+                { id: 'SU030515', name: 'Louma' },
+                { id: 'SU030516', name: 'Mabi Sud' },
+                { id: 'SU030534', name: 'Mabi Nord' },
+                { id: 'SU030517', name: 'Massaka' },
+                { id: 'SU030518', name: 'Mbeka\'a' },
+                { id: 'SU030519', name: 'Mboamanga' },
+                { id: 'SU030520', name: 'Mokolo' },
+                { id: 'SU030521', name: 'Mpalla' },
+                { id: 'SU030535', name: 'Mpalla' },
+                { id: 'SU030522', name: 'Mpoangou' },
+                { id: 'SU030536', name: 'Mpolongwe I' },
+                { id: 'SU030537', name: 'Mpolongwe II' },
+                { id: 'SU030538', name: 'Ngoe' },
+                { id: 'SU030540', name: 'New Town 2' },
+                { id: 'SU030523', name: 'New Town 1' },
+                { id: 'SU030532', name: 'Londji 1' },
+                { id: 'SU030533', name: 'Londji 2' },
+                { id: 'SU030524', name: 'Petit-Paris' },
+                { id: 'SU030525', name: 'Talla' },
+                { id: 'SU030541', name: 'Wamie' },
+                { id: 'SU030526', name: 'Zaire' }
+              ]
+            },
+            {
+              id: 'SU-03-06',
+              name: 'Kribi II',
+              villages: [
+                { id: 'SU030601', name: 'Afan Mabe' },
+                { id: 'SU030602', name: 'Batanga Nord' },
+                { id: 'SU030603', name: 'Bebambwe 1' },
+                { id: 'SU030604', name: 'Bebambwe 2' },
+                { id: 'SU030605', name: 'Bikondo' },
+                { id: 'SU030606', name: 'Bilolo' },
+                { id: 'SU030607', name: 'Ebouyoe' },
+                { id: 'SU030608', name: 'Elabe' },
+                { id: 'SU030609', name: 'Grand Batanga' },
+                { id: 'SU030610', name: 'Kribi II' },
+                { id: 'SU030611', name: 'Kribi Ville' },
+                { id: 'SU030612', name: 'Lolabe' },
+                { id: 'SU030613', name: 'Londji 1' },
+                { id: 'SU030614', name: 'Londji 2' },
+                { id: 'SU030615', name: 'Mabi Nord' },
+                { id: 'SU030616', name: 'Mpalla' },
+                { id: 'SU030617', name: 'Mpolongwe I' },
+                { id: 'SU030618', name: 'Mpolongwe II' },
+                { id: 'SU030619', name: 'Ngoe' },
+                { id: 'SU030620', name: 'Nziou' },
+                { id: 'SU030621', name: 'New Town 2' },
+                { id: 'SU030622', name: 'Wamie' }
+              ]
+            },
+            {
+              id: 'SU-03-07',
+              name: 'Lokoundje',
+              villages: [
+                  { id: 'SU030701', name: 'Bandevouri' },
+                  { id: 'SU030702', name: 'Bakoko-Bassa' },
+                  { id: 'SU030703', name: 'Behondo' },
+                  { id: 'SU030704', name: 'Bella' },
+                  { id: 'SU030705', name: 'Bipaga' },
+                  { id: 'SU030706', name: 'Bipaga 1' },
+                  { id: 'SU030707', name: 'Bipaga 2' },
+                  { id: 'SU030708', name: 'Bissiang' },
+                  { id: 'SU030709', name: 'Bivouba' },
+                  { id: 'SU030710', name: 'Batanga Nord' },
+                  { id: 'SU030711', name: 'Bidou 1' },
+                  { id: 'SU030712', name: 'Bidou 2' },
+                  { id: 'SU030713', name: 'Edoungagomo' },
+                  { id: 'SU030714', name: 'Ebea' },
+                  { id: 'SU030715', name: 'Ebondi' },
+                  { id: 'SU030716', name: 'Elogbatindi' },
+                  { id: 'SU030717', name: 'Evouzok' },
+                  { id: 'SU030718', name: 'Fifinda 1' },
+                  { id: 'SU030719', name: 'Fifinda 2' },
+                  { id: 'SU030720', name: 'Gwap' },
+                  { id: 'SU030721', name: 'Groupement Fang' },
+                  { id: 'SU030722', name: 'Kilombo I' },
+                  { id: 'SU030723', name: 'Kilombo II' },
+                  { id: 'SU030724', name: 'Lokoundje' },
+                  { id: 'SU030725', name: 'Mabi Sud' },
+                  { id: 'SU030726', name: 'Mabenanga' },
+                  { id: 'SU030727', name: 'Makoure 1' },
+                  { id: 'SU030728', name: 'Makoure 2' },
+                  { id: 'SU030729', name: 'Mbebe' },
+                  { id: 'SU030730', name: 'Mboke' },
+                  { id: 'SU030731', name: 'Ngoyang' },
+                  { id: 'SU030732', name: 'Ndoumale' },
+                  { id: 'SU030733', name: 'Pama' },
+                  { id: 'SU030734', name: 'Poungo' },
+                  { id: 'SU030735', name: 'Socapalm' },
+                  { id: 'SU030736', name: 'Yalpenda' },
+                  { id: 'SU030737', name: 'Village I' },
+                  { id: 'SU030738', name: 'Village II' },
+                  { id: 'SU030739', name: 'Village III' },
+                  { id: 'SU030740', name: 'Village 4' },
+                  { id: 'SU030741', name: 'Village 5' },
+                  { id: 'SU030742', name: 'Camp Sav' },
+                  { id: 'SU030743', name: 'Camp-Cadres' },
+                  { id: 'SU030744', name: 'Camp-Chinois' },
+                  { id: 'SU030745', name: 'Camp-Usine' },
+                  { id: 'SU030746', name: 'Camp Wijma' }
+              ]
+            },
+            {
+              id: 'SU-03-08',
+              name: 'Lolodorf',
+              villages: [
+                  { id: 'SU030701', name: 'Administratif' },
+                  { id: 'SU030702', name: 'Bikalla' },
+                  { id: 'SU030703', name: 'Bikalla' },
+                  { id: 'SU030704', name: 'Bikoka' },
+                  { id: 'SU030705', name: 'Big Bally' },
+                  { id: 'SU030706', name: 'Bimia' },
+                  { id: 'SU030707', name: 'Bibia' },
+                  { id: 'SU030708', name: 'Beti' },
+                  { id: 'SU030709', name: 'Fang' },
+                  { id: 'SU030710', name: 'Haoussa' },
+                  { id: 'SU030711', name: 'Kaba' },
+                  { id: 'SU030712', name: 'Koumbizik' },
+                  { id: 'SU030713', name: 'Limanzouang' },
+                  { id: 'SU030714', name: 'Lolodorf' },
+                  { id: 'SU030715', name: 'Madong 1' },
+                  { id: 'SU030716', name: 'Madong 2' },
+                  { id: 'SU030717', name: 'Melangué' },
+                  { id: 'SU030718', name: 'Mbango Bitouer' },
+                  { id: 'SU030719', name: 'Mbango-Boulou' },
+                  { id: 'SU030720', name: 'Mbango-Ngoumba' },
+                  { id: 'SU030721', name: 'Mbikiliki' },
+                  { id: 'SU030722', name: 'Mill' },
+                  { id: 'SU030723', name: 'Mougue' },
+                  { id: 'SU030724', name: 'Mville' },
+                  { id: 'SU030725', name: 'Ngoué' },
+                  { id: 'SU030726', name: 'Ngovayang' },
+                  { id: 'SU030727', name: 'Ngovayang 1' },
+                  { id: 'SU030728', name: 'Ngovayang 2' },
+                  { id: 'SU030729', name: 'Ngovayang 3' },
+                  { id: 'SU030730', name: 'Ngoumba Centre' },
+                  { id: 'SU030731', name: 'Ngoumba-Sud' },
+                  { id: 'SU030732', name: 'Nkouambpoer 1' },
+                  { id: 'SU030733', name: 'Nkouambpoer 2' }
+            
+              ]
+            },
+            {
+              id: 'SU-03-09',
+              name: 'Mvengue',
+              villages: [
+                  { id: 'SU030701', name: 'Abam' },
+                  { id: 'SU030702', name: 'Akok Mvog Belinga' },
+                  { id: 'SU030703', name: 'Akom' },
+                  { id: 'SU030704', name: 'Ating-Etom' },
+                  { id: 'SU030705', name: 'Awonda' },
+                  { id: 'SU030706', name: 'Awonda II' },
+                  { id: 'SU030707', name: 'Bella' },
+                  { id: 'SU030708', name: 'Bikoe 1' },
+                  { id: 'SU030709', name: 'Bikoe 2' },
+                  { id: 'SU030710', name: 'Bikoe SI' },
+                  { id: 'SU030711', name: 'Bembe' },
+                  { id: 'SU030712', name: 'Ebayege' },
+                  { id: 'SU030713', name: 'Ebom Centre' },
+                  { id: 'SU030714', name: 'Ebom I' },
+                  { id: 'SU030715', name: 'Ebom II' },
+                  { id: 'SU030716', name: 'Elon' },
+                  { id: 'SU030717', name: 'Enoah Yanda Centre' },
+                  { id: 'SU030718', name: 'Enoah Yanda Nord' },
+                  { id: 'SU030719', name: 'Enoah Yanda Ouest' },
+                  { id: 'SU030720', name: 'Ka\'an' },
+                  { id: 'SU030721', name: 'Koulounganga I' },
+                  { id: 'SU030722', name: 'Koulounganga II' },
+                  { id: 'SU030723', name: 'Melen' },
+                  { id: 'SU030724', name: 'Menganda I' },
+                  { id: 'SU030725', name: 'Menganda II' },
+                  { id: 'SU030726', name: 'Mekan' },
+                  { id: 'SU030727', name: 'Minkougou' },
+                  { id: 'SU030728', name: 'Minkan I' },
+                  { id: 'SU030729', name: 'Minkan II' },
+                  { id: 'SU030730', name: 'Mvengue' },
+                  { id: 'SU030731', name: 'Mvengue Centre' },
+                  { id: 'SU030732', name: 'Mvengue II' },
+                  { id: 'SU030733', name: 'Mvengue III' },
+                  { id: 'SU030734', name: 'Mvengue Medjobobo' },
+                  { id: 'SU030735', name: 'Mvengue Nsam' },
+                  { id: 'SU030736', name: 'Mvengue Ville' },
+                  { id: 'SU030737', name: 'Mvog Tsoung Mballa' },
+                  { id: 'SU030738', name: 'Ndzibetono' },
+                  { id: 'SU030739', name: 'Nkoala\'a I' },
+                  { id: 'SU030740', name: 'Nkoala\'a II' },
+                  { id: 'SU030741', name: 'Nkotou' },
+                  { id: 'SU030742', name: 'Nkoutou' },
+                  { id: 'SU030743', name: 'Nkolatom' },
+                  { id: 'SU030744', name: 'Nkolmendim II' },
+                  { id: 'SU030745', name: 'Nkolmending I' },
+                  { id: 'SU030746', name: 'Nyamfende' },
+                  { id: 'SU030747', name: 'Okoga' },
+                  { id: 'SU030748', name: 'Wom I' },
+                  { id: 'SU030749', name: 'Wom II' }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'SU-04',
+          name: 'Vallee du Ntem',
+          arrondissements: [
+            {
+              id: 'SU-04-01',
+              name: 'Ambam',
+              villages: [
+                  { id: 'SU040101', name: 'Abang Bethel' },
+                  { id: 'SU040102', name: 'Abang Minkok 1' },
+                  { id: 'SU040103', name: 'Akom-Bikak' },
+                  { id: 'SU040104', name: 'Akam-Bitam' },
+                  { id: 'SU040105', name: 'Akam-Bitam 2' },
+                  { id: 'SU040106', name: 'Akina' },
+                  { id: 'SU040107', name: 'Akoulezok' },
+                  { id: 'SU040108', name: 'Akoulezok 2' },
+                  { id: 'SU040109', name: 'Ambam' },
+                  { id: 'SU040110', name: 'Ambam-Ayat' },
+                  { id: 'SU040111', name: 'Andom' },
+                  { id: 'SU040112', name: 'Assandjik' },
+                  { id: 'SU040113', name: 'Aviation' },
+                  { id: 'SU040114', name: 'Biléossi' },
+                  { id: 'SU040115', name: 'Bilik Bi Yama' },
+                  { id: 'SU040116', name: 'Bilik Bitho' },
+                  { id: 'SU040117', name: 'Bindameyos' },
+                  { id: 'SU040118', name: 'Biyi Eba' },
+                  { id: 'SU040119', name: 'Biyi Efack' },
+                  { id: 'SU040120', name: 'Briqueterie' },
+                  { id: 'SU040121', name: 'Ebozi 1' },
+                  { id: 'SU040122', name: 'Ebozi 2' },
+                  { id: 'SU040123', name: 'Elon' },
+                  { id: 'SU040124', name: 'Engout-Adjap' },
+                  { id: 'SU040125', name: 'Ekounmedoum' },
+                  { id: 'SU040126', name: 'Kou\'ou-Si' },
+                  { id: 'SU040127', name: 'Mafy' },
+                  { id: 'SU040128', name: 'Mefoup' },
+                  { id: 'SU040129', name: 'Melondo' },
+                  { id: 'SU040130', name: 'Mengama' },
+                  { id: 'SU040131', name: 'Mengomo' },
+                  { id: 'SU040132', name: 'Menkok' },
+                  { id: 'SU040133', name: 'Minkok' },
+                  { id: 'SU040134', name: 'Mizang' },
+                  { id: 'SU040135', name: 'Moyen' },
+                  { id: 'SU040136', name: 'Mpenk' },
+                  { id: 'SU040137', name: 'Myen' },
+                  { id: 'SU040138', name: 'Myele' },
+                  { id: 'SU040139', name: 'Myele 2' },
+                  { id: 'SU040140', name: 'Ngang' },
+                  { id: 'SU040141', name: 'Nkan' },
+                  { id: 'SU040142', name: 'Nkolefoulan' },
+                  { id: 'SU040143', name: 'Nkong-Meyos' },
+                  { id: 'SU040144', name: 'Nkol Etam' },
+                  { id: 'SU040145', name: 'Nkol-Melen' },
+                  { id: 'SU040146', name: 'Nlonon' },
+                  { id: 'SU040147', name: 'Npkwa-Evole' },
+                  { id: 'SU040148', name: 'Nsolé' },
+                  { id: 'SU040149', name: 'Ntole' },
+                  { id: 'SU040150', name: 'Ntole 2' },
+                  { id: 'SU040151', name: 'Ntole 3' },
+                  { id: 'SU040152', name: 'Ntole 4' },
+                  { id: 'SU040153', name: 'Ntoumou Est' },
+                  { id: 'SU040154', name: 'Ntoumou Nord' },
+                  { id: 'SU040155', name: 'Ntoumou Sud' },
+                  { id: 'SU040156', name: 'Oveng' },
+                  { id: 'SU040157', name: 'Oveng-Essakoram' },
+                  { id: 'SU040158', name: 'Sakou' },
+                  { id: 'SU040159', name: 'Tho 1' },
+                  { id: 'SU040160', name: 'Tho 2' },
+                  { id: 'SU040161', name: 'Yama' },
+                  { id: 'SU040162', name: 'Zalom' },
+                  { id: 'SU040163', name: 'Zaminkam' }
+              ]
+            },
+            {
+              id: 'SU-04-02',
+              name: 'Ma\'an',
+              villages: [
+                  { id: 'SU040201', name: 'Abang' },
+                  { id: 'SU040202', name: 'Afan' },
+                  { id: 'SU040203', name: 'Alen 1' },
+                  { id: 'SU040204', name: 'Alen 2' },
+                  { id: 'SU040205', name: 'Aloum 1' },
+                  { id: 'SU040206', name: 'Aloum 2' },
+                  { id: 'SU040207', name: 'Angalé' },
+                  { id: 'SU040208', name: 'Anguiridjang' },
+                  { id: 'SU040209', name: 'Assam' },
+                  { id: 'SU040210', name: 'Asseng' },
+                  { id: 'SU040211', name: 'Aya-Amang' },
+                  { id: 'SU040212', name: 'Bidjap' },
+                  { id: 'SU040213', name: 'Bindem' },
+                  { id: 'SU040214', name: 'Bitoto' },
+                  { id: 'SU040215', name: 'Biyan' },
+                  { id: 'SU040216', name: 'Boucle du Ntem 1' },
+                  { id: 'SU040217', name: 'Boucle du Ntem 2' },
+                  { id: 'SU040218', name: 'Ebolmbama Centre' },
+                  { id: 'SU040219', name: 'Ekéké' },
+                  { id: 'SU040220', name: 'Endendem' },
+                  { id: 'SU040221', name: 'Eves' },
+                  { id: 'SU040222', name: 'Evolé' },
+                  { id: 'SU040223', name: 'Evouma' },
+                  { id: 'SU040224', name: 'Evouzok' },
+                  { id: 'SU040225', name: 'Ma\'an' },
+                  { id: 'SU040226', name: 'Ma\'an Centre' },
+                  { id: 'SU040227', name: 'Ma\'an Ville' },
+                  { id: 'SU040228', name: 'Ma\'an Village' },
+                  { id: 'SU040229', name: 'Mbenkomo' },
+                  { id: 'SU040230', name: 'Mebang' },
+                  { id: 'SU040231', name: 'Mebera' },
+                  { id: 'SU040232', name: 'Mekok' },
+                  { id: 'SU040233', name: 'Mekok-Mengon' },
+                  { id: 'SU040234', name: 'Melondo' },
+                  { id: 'SU040235', name: 'Melen' },
+                  { id: 'SU040236', name: 'Melen 2' },
+                  { id: 'SU040237', name: 'Meyos 1' },
+                  { id: 'SU040238', name: 'Meyos 2' },
+                  { id: 'SU040239', name: 'Meyo Ntem' },
+                  { id: 'SU040240', name: 'Mvae-Ouest' },
+                  { id: 'SU040241', name: 'Mfoua' },
+                  { id: 'SU040242', name: 'Minkan' },
+                  { id: 'SU040243', name: 'Minkan Mengalé' },
+                  { id: 'SU040244', name: 'Messama I' },
+                  { id: 'SU040245', name: 'Messama II' },
+                  { id: 'SU040246', name: 'Messama III' },
+                  { id: 'SU040247', name: 'Metondo' },
+                  { id: 'SU040248', name: 'Mviilimengalé' },
+                  { id: 'SU040249', name: 'Ndzazeng' },
+                  { id: 'SU040250', name: 'Ngbwa Akom' },
+                  { id: 'SU040251', name: 'Nko\'ondo\'o' },
+                  { id: 'SU040252', name: 'Nnemeyong' },
+                  { id: 'SU040253', name: 'Nnemeyong 2' },
+                  { id: 'SU040254', name: 'Ngo\'o Mbang' },
+                  { id: 'SU040255', name: 'Nsengou' },
+                  { id: 'SU040256', name: 'Ntebe-Zok' },
+                  { id: 'SU040257', name: 'Nyabibak' },
+                  { id: 'SU040258', name: 'Nyabessang' },
+                  { id: 'SU040259', name: 'Nnezam' },
+                  { id: 'SU040260', name: 'Okong' },
+                  { id: 'SU040261', name: 'Son' },
+                  { id: 'SU040262', name: 'Tom' },
+                  { id: 'SU040263', name: 'Tya\'assono' },
+                  { id: 'SU040264', name: 'Zouameyong' }
+              ]
+            },
+            {
+              id: 'SU-04-03',
+              name: 'Olamze',
+              villages: [
+                { id: 'SU040301', name: 'Ata\'a Ntem' },
+                { id: 'SU040302', name: 'Bekue' },
+                { id: 'SU040303', name: 'Bindoum' },
+                { id: 'SU040304', name: 'Biyii' },
+                { id: 'SU040305', name: 'Engolzok' },
+                { id: 'SU040306', name: 'Eyinantoum' },
+                { id: 'SU040307', name: 'Mbang' },
+                { id: 'SU040308', name: 'Mbe' },
+                { id: 'SU040309', name: 'Mengama' },
+                { id: 'SU040310', name: 'Meka\'a Minkoumou' },
+                { id: 'SU040311', name: 'Mekomo' },
+                { id: 'SU040312', name: 'Meko\'o Si I' },
+                { id: 'SU040313', name: 'Meko\'o Si II' },
+                { id: 'SU040314', name: 'Mekomengona I' },
+                { id: 'SU040315', name: 'Mekomengona II' },
+                { id: 'SU040316', name: 'Menguikom' },
+                { id: 'SU040317', name: 'Meyo Carrefour' },
+                { id: 'SU040318', name: 'Meyo Nkol Yat' },
+                { id: 'SU040319', name: 'Meyo Wo' },
+                { id: 'SU040320', name: 'Mindjo Koumou' },
+                { id: 'SU040321', name: 'Ntoumou Sud' },
+                { id: 'SU040322', name: 'Olang Amvila' },
+                { id: 'SU040323', name: 'Olang Centre' },
+                { id: 'SU040324', name: 'Olang Lae' },
+                { id: 'SU040325', name: 'Olang Mfoumou' },
+                { id: 'SU040326', name: 'Olamze' },
+                { id: 'SU040327', name: 'Olamze Centre' },
+                { id: 'SU040328', name: 'Olamze Ville' },
+                { id: 'SU040329', name: 'Olamze Village' },
+                { id: 'SU040330', name: 'Yos II' }
+            ]
+            },
+            {
+              id: 'SU-04-04',
+              name: 'Kye-Ossi',
+              villages: [
+                  { id: 'SU040401', name: 'Adjou\'ou' },
+                  { id: 'SU040402', name: 'Akombang' },
+                  { id: 'SU040403', name: 'Akonangui' },
+                  { id: 'SU040404', name: 'Dama' },
+                  { id: 'SU040405', name: 'Ebengon I' },
+                  { id: 'SU040406', name: 'Ebengon II' },
+                  { id: 'SU040407', name: 'Fenete' },
+                  { id: 'SU040408', name: 'Kono Fonossi' },
+                  { id: 'SU040409', name: 'Kye-Ossi' },
+                  { id: 'SU040410', name: 'Kye-Ossi Ville' },
+                  { id: 'SU040411', name: 'Mefoup' },
+                  { id: 'SU040412', name: 'Mekomo I' },
+                  { id: 'SU040413', name: 'Mekomo II' },
+                  { id: 'SU040414', name: 'Metet' },
+                  { id: 'SU040415', name: 'Meyo Nkoulou' },
+                  { id: 'SU040416', name: 'Minkomo' },
+                  { id: 'SU040417', name: 'Minyon' },
+                  { id: 'SU040418', name: 'Ngoazik' },
+                  { id: 'SU040419', name: 'Nkan' },
+                  { id: 'SU040420', name: 'Nsana' },
+                  { id: 'SU040421', name: 'Nsangbwanga' },
+                  { id: 'SU040422', name: 'Ongonzok' },
+                  { id: 'SU040423', name: 'Nkoetye' },
+                  { id: 'SU040424', name: 'Kye-Ossi Ville' }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ];
+
+  const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate('/checklist', { state: { formData } });
+  };
+  
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-8">
+        <div className="py-2">
+            <button
+                onClick={() => window.history.back()}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200 flex items-center"
+            >
+                <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-1"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                >
+                <path
+                    fillRule="evenodd"
+                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                    clipRule="evenodd"
+                />
+                </svg>
+                Retour
+            </button>
+        </div>
+      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md">
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h2 className="text-xl font-medium text-gray-800">
+            Informations sur le demandeur
+          </h2>
+        </div>
+
+        <div className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Previous form fields remain the same */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Personal Information */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Prénom</label>
+                <input
+                  name="firstName"
+                  type="text"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Nom</label>
+                <input
+                  name="lastName"
+                  type="text"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Numero de téléphone</label>
+                <input
+                  name="phoneNumber"
+                  type="text"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  name="email"
+                  type="text"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              {/* Location Selection */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Région</label>
+                <select
+                  name="region"
+                  value={formData.region}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Sélectionnez une région</option>
+                  {locationData.map(region => (
+                    <option key={region.id} value={region.id}>{region.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Département</label>
+                <select
+                  name="adminDepartment"
+                  value={formData.adminDepartment}
+                  onChange={handleInputChange}
+                  disabled={!formData.region}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Sélectionnez un département</option>
+                  {departments.map(dept => (
+                    <option key={dept.id} value={dept.id}>{dept.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Arrondissement</label>
+                <select
+                  name="arrondissement"
+                  value={formData.arrondissement}
+                  onChange={handleInputChange}
+                  disabled={!formData.adminDepartment}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Sélectionnez un arrondissement</option>
+                  {arrondissements.map(arr => (
+                    <option key={arr.id} value={arr.id}>{arr.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Village/Ville</label>
+                <select
+                  name="village"
+                  value={formData.village}
+                  onChange={handleInputChange}
+                  disabled={!formData.arrondissement}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Sélectionnez un village/ville</option>
+                  {villages.map(village => (
+                    <option key={village.id} value={village.id}>{village.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Description field */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Veuillez décrire votre demande..."
+              />
+            </div>
+          </form>
+        </div>
+        
+
+        <div className="p-6 border-t border-gray-200 flex justify-end space-x-4">
+          <button
+            type="button"
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Continuer
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default RequesterInfo;
