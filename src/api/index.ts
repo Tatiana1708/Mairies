@@ -26,8 +26,8 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, collection } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -41,8 +41,17 @@ const firebaseConfig = {
   appId: "1:967213162617:web:9e9a530847b448af8634a8",
   measurementId: "G-ZCQ8S3BP00"
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Initialize Realtime Database
+const database = getDatabase(app);
+
+export { database };
+
+// Initialize Firestore
 export const db = getFirestore(app);
+
+// Use the `collection` function with the Firestore instance
+const employeesCollection = collection(db, "employees");
+const equipmentsCollection = collection(db, "equipments");

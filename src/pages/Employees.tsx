@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, X } from 'lucide-react';
 import type { Employee, Department } from '../types';
-// ... other imports ...
+import { ref, onValue, remove } from "firebase/database";
 import { db } from '../api/index';
-import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { database } from '../api/index';
+import { collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
 
 const Employees = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -69,21 +70,44 @@ const Employees = () => {
 
   // Add useEffect to fetch data when component mounts
   useEffect(() => {
-    fetchEmployees();
+    // Reference to the "employees" collection in Firestore
+    // const employeesCollection = collection(db, "employees");
+
+      // Reference to the "employees" node in Realtime Database
+    const employeesRef = ref(database, "employees");
+
+    // Set up a real-time listener
+    // const unsubscribe = onSnapshot(
+    //   employeesCollection,
+    //   (snapshot) => {
+    //     const employeesData = snapshot.docs.map((doc) => ({
+    //       id: doc.id,
+    //       ...doc.data(),
+    //     }));
+    //     setEmployees(employeesData);
+    //   },
+    //   (error) => {
+    //     console.error("Firestore listener error:", error);
+    //   }
+    // );
+
+    // Set up a real-time listener
+    const unsubscribe = onValue(employeesRef, (snapshot) => {
+      const employeesData = snapshot.val();
+      if (employeesData) {
+        // Convert the data into an array of employees
+        const employeesList = Object.keys(employeesData).map((key) => ({
+          id: key,
+          ...employeesData[key],
+        }));
+        setEmployees(employeesList);
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup listener on unmount
   }, []);
 
-  const fetchEmployees = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, 'employees'));
-      const employeesList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setEmployees(employeesList);
-    } catch (error) {
-      console.error('Error fetching employees:', error);
-    }
-  };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,10 +160,18 @@ const Employees = () => {
   // Add delete function
   const handleDelete = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'employees', id));
-      setEmployees(employees.filter(employee => employee.id !== id));
+      // Reference to the specific employee node in Realtime Database
+      const employeeRef = ref(database, `employees/${id}`);
+  
+      // Delete the employee node
+      await remove(employeeRef);
+  
+      // Update the local state to remove the deleted employee
+      setEmployees((prevEmployees) =>
+        prevEmployees.filter((employee) => employee.id !== id)
+      );
     } catch (error) {
-      console.error('Error deleting employee:', error);
+      console.error("Error deleting employee:", error);
     }
   };
 

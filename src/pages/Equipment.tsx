@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, X } from 'lucide-react';
 import type { Equipment, Department } from '../types';
-// ... other imports ...
+import { ref, onValue, remove } from "firebase/database";
 import { db } from '../api/index';
+import { database } from '../api/index';
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 
@@ -72,23 +73,28 @@ const EquipmentPage = () => {
     return errors;
   };
 
-  // Add useEffect to fetch data when component mounts
-  useEffect(() => {
-    fetchEquipments();
-  }, []);
+ // Add useEffect to fetch data when component mounts
+   useEffect(() => { 
+       // Reference to the "equipments" node in Realtime Database
+     const equipmentsRef = ref(database, "equipments");
+ 
+     // Set up a real-time listener
+     const unsubscribe = onValue(equipmentsRef, (snapshot) => {
+       const equipmentsData = snapshot.val();
+       if (equipmentsData) {
+         // Convert the data into an array of equipments
+         const equipmentsList = Object.keys(equipmentsData).map((key) => ({
+           id: key,
+           ...equipmentsData[key],
+         }));
+         setEquipment(equipmentsList);
+       }
+     });
+ 
+     return () => unsubscribe(); // Cleanup listener on unmount
+   }, []);
+ 
 
-  const fetchEquipments = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, 'equipments'));
-      const equipmentsList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setEquipment(equipmentsList);
-    } catch (error) {
-      console.error('Error fetching equipments:', error);
-    }
-  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors = validateForm();
@@ -129,10 +135,24 @@ const EquipmentPage = () => {
     }
   };
 
+
   // Add delete function
   const handleDelete = async (id: string) => {
-    setEquipmentToDelete(id);
-    setShowDeleteModal(true);
+    try {
+      // Reference to the specific equipment node in Realtime Database
+      const equipmentRef = ref(database, `equipments/${id}`);
+  
+      // Delete the equipment node
+      await remove(equipmentRef);
+      setShowDeleteModal(true);
+  
+      // Update the local state to remove the deleted equipment
+      setEquipment((prevEquipments) =>
+        prevEquipments.filter((equipment) => equipment.id !== id)
+      );
+    } catch (error) {
+      console.error("Error deleting equipment:", error);
+    }
   };
 
   const confirmDelete = async () => {
